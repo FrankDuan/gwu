@@ -14,6 +14,7 @@ public class Experiment8 extends ExperimentBase {
         while (j < log(n)) {
             double k = 5;
             while (k < n) {
+                //Sum += a[j]*b[k]
                 //sum += Math.random() * Math.random();
                 k = pow(k, 1.5);
                 cycle2++;
