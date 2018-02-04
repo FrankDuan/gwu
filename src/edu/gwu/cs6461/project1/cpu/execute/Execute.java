@@ -10,4 +10,6 @@ public interface Execute {
      * @return
      */
     short execute(Instruction instruction);
+
+
 }
