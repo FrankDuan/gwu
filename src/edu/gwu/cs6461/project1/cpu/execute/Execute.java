@@ -11,5 +11,4 @@ public interface Execute {
      */
     short execute(Instruction instruction);
 
-
 }

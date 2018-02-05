@@ -1,12 +1,20 @@
 package edu.gwu.cs6461.project1.simulator;
 
 import edu.gwu.cs6461.project1.cpu.CPU;
+import edu.gwu.cs6461.project1.cpu.CPUImpl;
+import edu.gwu.cs6461.project1.cpu.Registers;
 import edu.gwu.cs6461.project1.memory.Memory;
+import edu.gwu.cs6461.project1.memory.MemoryImpl;
 
 public class Simulator{
 
     CPU cpu;
     Memory memory;
+
+    public Simulator() {
+        cpu = new CPUImpl();
+        memory = new MemoryImpl();
+    }
 
     /**
      * Initialize CPU and it's registers, memory.
@@ -35,15 +43,15 @@ public class Simulator{
      * Return the CPU instance.
      * Refers to CPU interface for operation supported.
      */
-    CPU getCPU(){
-        return cpu;
+    Memory getMemory(){
+        return memory;
     }
 
     /**
-     * Return the CPU instance.
-     * Refers to CPU interface for operation supported.
+     *
+     * @return registers of the cpu
      */
-    Memory getMemory(){
-        return memory;
+    Registers getRegisters() {
+        return cpu.getRegisters();
     }
 }

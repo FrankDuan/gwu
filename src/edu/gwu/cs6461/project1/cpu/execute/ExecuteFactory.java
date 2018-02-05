@@ -6,22 +6,22 @@ import java.util.Map;
 
 import edu.gwu.cs6461.project1.cpu.Instruction;
 
-public class ExecutorFactory {
+public class ExecuteFactory {
 
     private interface Creator {
         Execute create();
     }
 
-    private static final Map<Integer, Creator> factoryMap =
-            Collections.unmodifiableMap(new HashMap<Integer,Creator>() {{
-                put(1, new Creator() {
+    private static final Map<Short, Creator> factoryMap =
+            Collections.unmodifiableMap(new HashMap<Short,Creator>() {{
+                put((short)1, new Creator() {
                             public Execute create() {
                                 return new LDRImpl();
                             }
                        }
                 );
 
-                put(2, new Creator() {
+                put((short)2, new Creator() {
                             public Execute create() {
                                 return new STRImpl();
                             }
@@ -29,7 +29,7 @@ public class ExecutorFactory {
                 );
             }});
 
-    public Execute createExecutor(Instruction instruction) {
+    public static Execute createExecutor(Instruction instruction) {
         Creator factory = factoryMap.get(instruction.getOpcode());
         if (factory == null) {
             return null;

@@ -10,7 +10,6 @@ import edu.gwu.cs6461.project1.memory.Memory;
 public class CPUImpl implements CPU {
     Boolean isFault;
     Registers registers;
-    Memory memory;
 
     Fetch fetch;
     Decode decode;
@@ -18,10 +17,14 @@ public class CPUImpl implements CPU {
     MemoryUpdate memoryUpdate;
     RegisterUpdate registerUpdate;
 
+    public CPUImpl() {
+        isFault = false;
+        registers = new RegistersImpl();
+    }
+
     @Override
     public void initialize() {
         registers.initialize();
-        memory.initialize();
 
         //Todo: initialize the five components.
     }

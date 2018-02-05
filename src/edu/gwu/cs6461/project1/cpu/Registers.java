@@ -42,8 +42,7 @@ public interface Registers {
 
     short setPC(short value); //12bits
 
-    //CC should not be set
-    //short setCC(short value, short bitsMask);
+    short setCC(short value, short bitsMask);
 
     short getCC();
 
@@ -53,17 +52,15 @@ public interface Registers {
 
     short getMBR();
 
-    //MBR should not be set
-    //short setMBR(short value);
+    short setMBR(short value);
 
     short getMSR();
 
-    //MSR should not be set
-    //short setMSR(short value);
+    short setMSR(short value);
 
-    //MFR should not be set
-    //short setMFR(short value, short bitsMask);
+    short setMFR(short value, short bitsMask);
 
     short getMFR();
+
 
 }

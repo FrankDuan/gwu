@@ -12,7 +12,7 @@ public class MemoryImpl implements Memory{
     }
 
     @Override
-    public void setMomory(short address, short value) {
+    public void setMemory(short address, short value) {
 
     }
 }
