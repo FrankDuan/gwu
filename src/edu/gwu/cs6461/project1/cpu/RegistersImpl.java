@@ -35,8 +35,17 @@ public class RegistersImpl implements Registers{
     //     after it occurs
     short MFR;
 
-    public RegistersImpl() {
-        //todo: set all registers to 0
+    static Registers instance = null;
+
+    private RegistersImpl() {
+        initialize();
+    }
+
+    static public Registers getInstance(){
+        if(instance == null){
+            instance = new RegistersImpl();
+        }
+        return instance;
     }
 
     @Override
