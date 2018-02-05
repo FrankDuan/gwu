@@ -34,9 +34,13 @@ public interface Registers {
 
     short setGPR(short index, short value);
 
-    short getIR(short index);
+    short getX(short index);
 
-    short setIR(short index, short value);
+    short setX(short index, short value);
+
+    short getIR();
+
+    short setIR(short value);
 
     short getPC(); //12bits
 

@@ -2,10 +2,10 @@ package edu.gwu.cs6461.project1.cpu;
 
 public class RegistersImpl implements Registers{
     /* 4 General Purpose Registers (GPRs) – each 16 bits in length */
-    short[] gpr = new short[4];
+    short[] GPR = new short[4];
 
     /* 16 bits	    Index Register: contains a base address that supports base register */
-    short[] ir = new short[3];
+    short[] X = new short[3];
 
     /* 12 bits	    Program Counter: address of next instruction to be executed. */
     short PC;
@@ -55,23 +55,35 @@ public class RegistersImpl implements Registers{
 
     @Override
     public short getGPR(short index) {
-        return gpr[index];
+        return GPR[index];
     }
 
     @Override
     public short setGPR(short index, short value) {
-        gpr[index] = value;
+        GPR[index] = value;
         return value;
     }
 
     @Override
-    public short getIR(short index) {
-        return ir[index];
+    public short getX(short index) {
+        return X[index];
     }
 
     @Override
-    public short setIR(short index, short value) {
-        ir[index] = value;
+    public short setX(short index, short value) {
+        X[index] = value;
+        return value;
+    }
+
+
+    @Override
+    public short getIR() {
+        return IR;
+    }
+
+    @Override
+    public short setIR(short value) {
+        IR = value;
         return value;
     }
 

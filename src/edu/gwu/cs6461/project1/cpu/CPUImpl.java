@@ -2,9 +2,12 @@ package edu.gwu.cs6461.project1.cpu;
 
 import edu.gwu.cs6461.project1.cpu.decode.Decode;
 import edu.gwu.cs6461.project1.cpu.execute.Execute;
+import edu.gwu.cs6461.project1.cpu.execute.ExecuteFactory;
 import edu.gwu.cs6461.project1.cpu.fetch.Fetch;
 import edu.gwu.cs6461.project1.cpu.memory_update.MemoryUpdate;
+import edu.gwu.cs6461.project1.cpu.memory_update.MemoryUpdateImpl;
 import edu.gwu.cs6461.project1.cpu.register_update.RegisterUpdate;
+import edu.gwu.cs6461.project1.cpu.register_update.RegisterUpdateImpl;
 import edu.gwu.cs6461.project1.memory.Memory;
 
 public class CPUImpl implements CPU {
@@ -19,13 +22,14 @@ public class CPUImpl implements CPU {
 
     public CPUImpl() {
         isFault = false;
-        registers = new RegistersImpl();
+        registers = RegistersImpl.getInstance();
+        memoryUpdate = MemoryUpdateImpl.getInstance();
+        registerUpdate = RegisterUpdateImpl.getInstance();
     }
 
     @Override
     public void initialize() {
         registers.initialize();
-
         //Todo: initialize the five components.
     }
 
@@ -41,6 +45,7 @@ public class CPUImpl implements CPU {
         try {
             Instruction instruction = fetch.fetch(registers.getPC());
             decode.decode(instruction);
+            execute = ExecuteFactory.createExecutor(instruction);
             execute.execute(instruction);
             memoryUpdate.updateMemory(instruction);
             registerUpdate.updateRegister(instruction);
