@@ -6,6 +6,8 @@ import java.util.Map;
 
 import edu.gwu.cs6461.project1.cpu.Instruction;
 
+import edu.gwu.cs6461.project1.cpu.InstructionType;
+
 public class ExecuteFactory {
 
     private interface Creator {
@@ -14,19 +16,20 @@ public class ExecuteFactory {
 
     private static final Map<Short, Creator> factoryMap =
             Collections.unmodifiableMap(new HashMap<Short,Creator>() {{
-                put((short)1, new Creator() {
-                            public Execute create() {
-                                return new LDRImpl();
-                            }
-                       }
-                );
+                put(InstructionType.LDR, new Creator() {
+                            public Execute create() { return new SimpleAddImpl(); }});
 
-                put((short)2, new Creator() {
-                            public Execute create() {
-                                return new STRImpl();
-                            }
-                        }
-                );
+                put(InstructionType.STR, new Creator() {
+                            public Execute create() { return new SimpleAddImpl(); }});
+
+                put(InstructionType.LDA, new Creator() {
+                            public Execute create() { return new SimpleAddImpl(); }});
+
+                put(InstructionType.LDX, new Creator() {
+                            public Execute create() { return new SimpleAddImpl(); }});
+
+                put(InstructionType.STX, new Creator() {
+                            public Execute create() { return new SimpleAddImpl(); }});
             }});
 
     public static Execute createExecutor(Instruction instruction) {

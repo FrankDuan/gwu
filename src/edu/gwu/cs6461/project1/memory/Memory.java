@@ -9,4 +9,8 @@ public interface Memory {
 
     short getMemory(short address);
     void setMemory(short address, short value);
+
+
+    short[] getMemory(short address, short length);
+    short setMemory(short address, short[] value, short length);
 }

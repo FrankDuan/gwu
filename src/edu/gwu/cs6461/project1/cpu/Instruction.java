@@ -18,7 +18,8 @@ public class Instruction {
      * Set in decoding phase by the decoder
      * Decoder get operand from memory and save it to valM
      */
-    short valM;
+    short valA;
+    short valB;
 
     /**
      *  Set in executing phase by the executor
@@ -26,6 +27,10 @@ public class Instruction {
     short valE;
     short cc;
 
+    /**
+     *  Set in memory phase by the memory_updater
+     */
+    short valM;
 
     /**
      * Set in every phase;
@@ -135,5 +140,22 @@ public class Instruction {
 
     public void setState(short state) {
         this.state = state;
+    }
+
+
+    public short getValA() {
+        return valA;
+    }
+
+    public void setValA(short valA) {
+        this.valA = valA;
+    }
+
+    public short getValB() {
+        return valB;
+    }
+
+    public void setValB(short valB) {
+        this.valB = valB;
     }
 }
