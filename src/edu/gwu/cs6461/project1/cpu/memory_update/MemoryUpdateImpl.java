@@ -9,17 +9,17 @@ import edu.gwu.cs6461.project1.memory.MemoryImpl;
 
 public class MemoryUpdateImpl implements MemoryUpdate{
 
-    static MemoryUpdateImpl instance;
+    static MemoryUpdateImpl _instance;
 
     private MemoryUpdateImpl() {
         initialize();
     }
 
     static public MemoryUpdateImpl getInstance(){
-        if(instance == null){
-            instance = new MemoryUpdateImpl();
+        if(_instance == null){
+            _instance = new MemoryUpdateImpl();
         }
-        return instance;
+        return _instance;
     }
 
     void initialize() {

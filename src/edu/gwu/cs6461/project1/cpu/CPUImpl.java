@@ -1,9 +1,11 @@
 package edu.gwu.cs6461.project1.cpu;
 
 import edu.gwu.cs6461.project1.cpu.decode.Decode;
+import edu.gwu.cs6461.project1.cpu.decode.DecodeImpl;
 import edu.gwu.cs6461.project1.cpu.execute.Execute;
 import edu.gwu.cs6461.project1.cpu.execute.ExecuteFactory;
 import edu.gwu.cs6461.project1.cpu.fetch.Fetch;
+import edu.gwu.cs6461.project1.cpu.fetch.FetchImpl;
 import edu.gwu.cs6461.project1.cpu.memory_update.MemoryUpdate;
 import edu.gwu.cs6461.project1.cpu.memory_update.MemoryUpdateImpl;
 import edu.gwu.cs6461.project1.cpu.register_update.RegisterUpdate;
@@ -23,6 +25,8 @@ public class CPUImpl implements CPU {
     public CPUImpl() {
         isFault = false;
         registers = RegistersImpl.getInstance();
+        fetch = FetchImpl.getInstance();
+        decode = DecodeImpl.getInstance();
         memoryUpdate = MemoryUpdateImpl.getInstance();
         registerUpdate = RegisterUpdateImpl.getInstance();
     }

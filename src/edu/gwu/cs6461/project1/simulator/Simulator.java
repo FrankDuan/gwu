@@ -13,7 +13,7 @@ public class Simulator{
 
     public Simulator() {
         cpu = new CPUImpl();
-        memory = new MemoryImpl();
+        memory = MemoryImpl.getInstance();
     }
 
     /**

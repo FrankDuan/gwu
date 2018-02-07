@@ -65,6 +65,4 @@ public interface Registers {
     short setMFR(short value, short bitsMask);
 
     short getMFR();
-
-
 }

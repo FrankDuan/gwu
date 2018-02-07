@@ -12,5 +12,5 @@ public interface Memory {
 
 
     short[] getMemory(short address, short length);
-    short setMemory(short address, short[] value, short length);
+    void setMemory(short address, short[] value, short length);
 }

@@ -1,43 +1,75 @@
 package edu.gwu.cs6461.project1.memory;
 
-public class MemoryImpl implements Memory{
+import java.util.HashMap;
+import java.util.Map;
 
+public class MemoryImpl implements Memory {
+    private Map<Short, Short> memory;
 
-    static MemoryImpl instance = null;
+    static MemoryImpl _instance = null;
 
     private MemoryImpl() {
+        memory = new HashMap<Short, Short>();
         initialize();
     }
 
     static public Memory getInstance(){
-        if(instance == null){
-            instance = new MemoryImpl();
+        if(_instance == null){
+            _instance = new MemoryImpl();
         }
-        return instance;
+        return _instance;
     }
 
     @Override
     public void initialize() {
-
-    }
-
-    @Override
-    public short getMemory(short address) {
-        return 0;
+        System.out.println("memory initiated");
+        for (short i = 0; i < 4096; i++) {
+            memory.put(i, (short) 0);
+        }
     }
 
     @Override
     public void setMemory(short address, short value) {
-
+        if (address < 4096 && address >= 0) {
+            memory.put(address, value);
+        } else {
+            System.out.println("Out of Bound");
+        }
     }
 
     @Override
-    public short[] getMemory(short address, short length) {
-        return new short[0];
+    public void setMemory(short address, short[] value, short length) {
+        if (value.length + address < 4096) {
+            for (int i = 0; i < value.length; i++) {
+                memory.put((short) (address + i), value[i]);
+            }
+        } else {
+            System.out.println("Out of Bound");
+        }
     }
 
     @Override
-    public short setMemory(short address, short[] value, short length) {
+    public short getMemory(short address) {
+        if (address < 4096 && address >= 0) {
+            return memory.get(address);
+        } else {
+            System.out.println("Out of Bound");
+            //todo: throw an exception.
+        }
         return 0;
     }
+    @Override
+    public short[] getMemory(short address, short length) {
+        if (address < 4096 && address >= 0) {
+            short[] tmp = new short[length];
+            for (short i = 0; i < length; i++) {
+                tmp[i] = memory.get(address + i);
+            }
+            return tmp;
+        } else {
+            System.out.println("Out of Bound");
+        }
+        return null;
+    }
 }
+
