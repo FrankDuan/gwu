@@ -1,5 +1,8 @@
 package edu.gwu.cs6461.project1.memory;
 
+import edu.gwu.cs6461.project1.cpu.Registers;
+import edu.gwu.cs6461.project1.cpu.RegistersImpl;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -7,6 +10,7 @@ public class MemoryImpl implements Memory {
     private Map<Short, Short> memory;
 
     static MemoryImpl _instance = null;
+    Registers registers = RegistersImpl.getInstance();
 
     private MemoryImpl() {
         memory = new HashMap<Short, Short>();
@@ -31,6 +35,8 @@ public class MemoryImpl implements Memory {
     @Override
     public void setMemory(short address, short value) {
         if (address < 4096 && address >= 0) {
+            registers.setMAR(address);
+            registers.setMBR(value);
             memory.put(address, value);
         } else {
             System.out.println("Out of Bound");
@@ -51,6 +57,7 @@ public class MemoryImpl implements Memory {
     @Override
     public short getMemory(short address) {
         if (address < 4096 && address >= 0) {
+
             return memory.get(address);
         } else {
             System.out.println("Out of Bound");

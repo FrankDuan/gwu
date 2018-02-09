@@ -19,7 +19,7 @@ public class Simulator{
     /**
      * Initialize CPU and it's registers, memory.
      */
-    void initialize(){
+    public void initialize(){
         cpu.initialize();
         memory.initialize();
     }
@@ -28,14 +28,14 @@ public class Simulator{
      * Run from position of PC to HLT instruction.
      * Stop when exception occurs.
      */
-    void run(){
+    public void run(){
         cpu.run();
     }
 
     /**
      * Run instruction pointed by PC and stop.
      */
-    void runSingleStep(){
+    public void runSingleStep(){
         cpu.singleStepRun();
     }
 

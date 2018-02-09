@@ -36,7 +36,7 @@ public interface Registers {
 
     short getX(short index);
 
-    short setX(short index, short value);
+    short setX(short index, short value );
 
     short getIR();
 
@@ -47,6 +47,8 @@ public interface Registers {
     short setPC(short value); //12bits
 
     short setCC(short value, short bitsMask);
+
+    public short setCC(short value);
 
     short getCC();
 

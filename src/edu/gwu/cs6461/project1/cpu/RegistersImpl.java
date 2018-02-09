@@ -104,6 +104,11 @@ public class RegistersImpl implements Registers{
     }
 
     @Override
+    public short setCC(short value) {
+        return 0;
+    }
+
+    @Override
     public short getCC() {
         return CC;
     }
