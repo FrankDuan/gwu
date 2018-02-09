@@ -54,7 +54,9 @@ public class MemoryUpdateImpl implements MemoryUpdate{
                 break;
 
             case InstructionType.LDA:
-                //No operation
+                if(indirect != 0){
+                    instruction.setValM(addr);
+                }
                 break;
 
             case InstructionType.STX:

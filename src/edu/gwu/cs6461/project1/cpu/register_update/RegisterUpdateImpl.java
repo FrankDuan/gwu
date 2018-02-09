@@ -41,7 +41,12 @@ public class RegisterUpdateImpl implements RegisterUpdate{
 
             case InstructionType.LDA:
                 //R[r] <- valE
-                value = instruction.getValE();
+                if(instruction.getI() == 0) {
+                    value = instruction.getValE();
+                }
+                else {
+                    value = instruction.getValM();
+                }
                 registers.setGPR(instruction.getR(), value);
                 break;
 

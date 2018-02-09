@@ -105,6 +105,7 @@ public class RegistersImpl implements Registers{
 
     @Override
     public short setCC(short value) {
+        CC = value;
         return 0;
     }
 
@@ -131,6 +132,7 @@ public class RegistersImpl implements Registers{
 
     @Override
     public short setMBR(short value) {
+        MBR = value;
         return 0;
     }
 
@@ -141,11 +143,13 @@ public class RegistersImpl implements Registers{
 
     @Override
     public short setMSR(short value) {
+        MSR = value;
         return 0;
     }
 
     @Override
     public short setMFR(short value, short bitsMask) {
+        MFR = value;
         return 0;
     }
 
