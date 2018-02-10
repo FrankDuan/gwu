@@ -1,6 +1,7 @@
 package edu.gwu.cs6461.project1.cpu.fetch;
 
 import edu.gwu.cs6461.project1.cpu.Instruction;
+import edu.gwu.cs6461.project1.cpu.InstructionType;
 import edu.gwu.cs6461.project1.cpu.Registers;
 import edu.gwu.cs6461.project1.cpu.RegistersImpl;
 import edu.gwu.cs6461.project1.memory.Memory;
@@ -46,11 +47,11 @@ public class FetchImpl implements Fetch {
         short maskShort=(short)(Integer.parseUnsignedInt(maskStr,2));
         opcode=(short)((sourceInstr>>10) & 0x3f);
         switch(opcode){
-            case 01:
-            case 02:
-            case 03:
-            case 41:
-            case 42:
+            case InstructionType.LDR:
+            case InstructionType.STR:
+            case InstructionType.LDA:
+            case InstructionType.LDX:
+            case InstructionType.STX:
                 maskStr="0000001100000000";
                 maskShort=(short)(Integer.parseUnsignedInt(maskStr,2));
                 instruction.setR((short)((sourceInstr&maskShort)>>8));
