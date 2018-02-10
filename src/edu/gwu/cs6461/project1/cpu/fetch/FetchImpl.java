@@ -42,7 +42,7 @@ public class FetchImpl implements Fetch {
         short opcode;
         String maskStr="1111110000000000";
         short maskShort=(short)(Integer.parseUnsignedInt(maskStr,2));
-        opcode=(short)((sourceInstr&maskShort)>>10);
+        opcode=(short)((sourceInstr>>10) & 0x3f);
         switch(opcode){
             case 01:
             case 02:
