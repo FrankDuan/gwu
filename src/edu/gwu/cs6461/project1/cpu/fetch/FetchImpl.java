@@ -31,7 +31,9 @@ public class FetchImpl implements Fetch {
         Registers registers= RegistersImpl.getInstance();
         Instruction instruction = new Instruction();
         Memory memory = MemoryImpl.getInstance();
-        instruction.setInstruct_code(memory.getMemory(registers.getPC()));
+        short code = memory.getMemory(registers.getPC());
+        instruction.setInstruct_code(code);
+        registers.setIR(code);
         splitInstruction(instruction);//通过这一步，完成指令分段
 
         return instruction;
