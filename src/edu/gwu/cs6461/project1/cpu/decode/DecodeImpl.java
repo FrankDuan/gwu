@@ -38,7 +38,7 @@ public class DecodeImpl implements Decode {
                 break;
             case InstructionType.LDX:
             case InstructionType.STX:
-                instruction.setValA((short)0);
+                instruction.setValA(registers.getX(instruction.getIx()));
                 instruction.setValB(instruction.getAddress());
                 break;
             default :
