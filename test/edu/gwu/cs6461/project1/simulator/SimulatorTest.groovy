@@ -42,20 +42,6 @@ class SimulatorTest extends GroovyTestCase {
         assertEquals((short)0x110, registers.getMAR())
         assertEquals((short)0x5C, registers.getMBR())
         assertEquals(generateInstruction(temp), registers.getIR())
-
-        temp.i = 1
-        temp.ix = 0
-        registers.setX((short)temp.i, (short)0x100)
-        registers.setPC((short)0x10)
-        memory.setMemory((short)0x10, (short)(generateInstruction(temp)))
-        memory.setMemory((short)0x5, (short)0x110)
-        memory.setMemory((short)0x110, (short)0x5C)
-
-        simulator.runSingleStep()
-        assertEquals((short)0x5C, registers.getGPR((Short)3))
-        assertEquals((short)0x110, registers.getMAR())
-        assertEquals((short)0x5C, registers.getMBR())
-        assertEquals(generateInstruction(temp), registers.getIR())
     }
 
     void testSTR() {
@@ -165,17 +151,18 @@ class SimulatorTest extends GroovyTestCase {
 
         simulator.initialize()
         Instruction temp = new Instruction()
+        //LDX 1，50，0
         temp.opcode = InstructionType.LDX
         temp.ix = 1
-        temp.address = 0x15
+        temp.address = 0x15  //0x32
         temp.i = 0
         registers.setPC((short)0x10)
-        registers.setX(temp.ix, (short)0x20)
+        registers.setX(temp.ix, (short)0x10)
         memory.setMemory((short)0x10, (short)(generateInstruction(temp)))
-        memory.setMemory((short)0x35, (short)0x5B)
+        memory.setMemory((short)0x25, (short)0x5B)
         simulator.runSingleStep()
         assertEquals((short)0x5B, registers.getX(temp.ix))
-        assertEquals((short)0x35, registers.getMAR())
+        assertEquals((short)0x25, registers.getMAR())
         assertEquals((short)0x5B, registers.getMBR())
         assertEquals(generateInstruction(temp), registers.getIR())
 
