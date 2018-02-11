@@ -32,7 +32,6 @@ public class DecodeImpl implements Decode {
             case InstructionType.LDR:
             case InstructionType.STR:
             case InstructionType.LDA:
-
                 instruction.setValA(registers.getX(instruction.getIx()));
                 instruction.setValB(instruction.getAddress());
                 break;

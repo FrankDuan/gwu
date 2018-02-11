@@ -5,7 +5,8 @@ public class RegistersImpl implements Registers{
     short[] GPR = new short[4];
 
     /* 16 bits	    Index Register: contains a base address that supports base register */
-    short[] X = new short[3];
+    /* x0 will never be used and always be 0 */
+    short[] X = new short[4];
 
     /* 12 bits	    Program Counter: address of next instruction to be executed. */
     short PC;
@@ -71,10 +72,13 @@ public class RegistersImpl implements Registers{
 
     @Override
     public short setX(short index, short value) {
+        if (index < 1 || index >= X.length){
+            //todo: throw a exception;
+            return 0;
+        }
         X[index] = value;
         return value;
     }
-
 
     @Override
     public short getIR() {
