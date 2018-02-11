@@ -42,6 +42,20 @@ class SimulatorTest extends GroovyTestCase {
         assertEquals((short)0x110, registers.getMAR())
         assertEquals((short)0x5C, registers.getMBR())
         assertEquals(generateInstruction(temp), registers.getIR())
+
+        temp.i = 1
+        temp.ix = 0
+        registers.setX((short)temp.i, (short)0x100)
+        registers.setPC((short)0x10)
+        memory.setMemory((short)0x10, (short)(generateInstruction(temp)))
+        memory.setMemory((short)0x5, (short)0x110)
+        memory.setMemory((short)0x110, (short)0x5C)
+
+        simulator.runSingleStep()
+        assertEquals((short)0x5C, registers.getGPR((Short)3))
+        assertEquals((short)0x110, registers.getMAR())
+        assertEquals((short)0x5C, registers.getMBR())
+        assertEquals(generateInstruction(temp), registers.getIR())
     }
 
     void testSTR() {
