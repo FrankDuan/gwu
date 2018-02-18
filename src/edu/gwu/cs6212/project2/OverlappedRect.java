@@ -2,6 +2,7 @@ package edu.gwu.cs6212.project2;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 
 
@@ -55,7 +56,7 @@ public class OverlappedRect {
             return;
         }
         //Find median value
-        Integer median = findOutMedian(start, end);
+        Integer median = findOutMedian(rectangles.x_nw, start, end);
 
         //Divide the rectangles into three groups
         Boundary boundary = divideByPivot(start, end, median);
@@ -67,11 +68,11 @@ public class OverlappedRect {
         getOverlappedRect(boundary.rightBoundary, end);
 
         // 3. rectangles cross the median
-        getOverlappedRect2(start, end, median,boundary.leftBoundary, boundary.rightBoundary);
+        getOverlappedRect2(start, end,boundary.leftBoundary, boundary.rightBoundary);
     }
 
     //
-    void getOverlappedRect2(Integer start, Integer end, Integer median, Integer leftBoundary, Integer rightBoundary){
+    void getOverlappedRect2(Integer start, Integer end, Integer leftBoundary, Integer rightBoundary){
         if(leftBoundary > rightBoundary){
             return;
         }
@@ -79,9 +80,9 @@ public class OverlappedRect {
         /**
          *
          */
-        sortByRef(start, leftBoundary, rectangles.x_se);
-        sortByRef(rightBoundary, end, rectangles.x_nw);
-        sortByRef(leftBoundary + 1, rightBoundary -1, rectangles.y_se);
+        quickSort(rectangles.x_se, start, leftBoundary);
+        quickSort(rectangles.x_nw, rightBoundary, end);
+        quickSort(rectangles.y_se,leftBoundary + 1, rightBoundary -1);
 
         for(int i = leftBoundary + 1; i <= rightBoundary - 1; i++){
             int index1 = rectangles.indexes[i];
@@ -115,7 +116,7 @@ public class OverlappedRect {
             //Check if current rectangle overlapped with rectangle on the right side.
             for(int j = i + 1; j < rightBoundary; j ++){
                 int index2 = rectangles.indexes[j];
-                if(y1 >= rectangles.y_nw[index2]){
+                if(y1 >= rectangles.y_se[index2]){
                     isOverlapped(i, j);
                 }
                 else{
@@ -134,20 +135,23 @@ public class OverlappedRect {
     }
 
     Boundary divideByPivot(Integer start, Integer end, Integer pivot) {
+        int tmp = start - 1;
         Boundary boundary = new Boundary();
         ArrayList<Integer> wtList = new ArrayList<>();
+
+        //Move rects in the left side of the pivot to the start of the array
         for(int i = start; i <= end; i++) {
             int index1 = rectangles.indexes[i];
 
             if (rectangles.x_se[index1] < pivot) {
                 //The rectangle is in the left side of the pivot
-                boundary.leftBoundary = i;
+                tmp = i;
                 if(wtList.size() > 0){
                     int wt_pos = wtList.get(0);
                     if (wt_pos < i) {
                         rectangles.indexes[i] = rectangles.indexes[wt_pos];
                         rectangles.indexes[wt_pos] = index1;
-                        boundary.leftBoundary = wt_pos;
+                        tmp = wt_pos;
                         wtList.remove(0);
                     }
                 }
@@ -155,18 +159,22 @@ public class OverlappedRect {
                 wtList.add(i);
             }
         }
+        boundary.leftBoundary = tmp;
+
+        //Move rects in the right side of the pivot to the end of the array
         wtList.clear();
+        tmp = end + 1;
         for(int i = end; i <= start; i--) {
             int index1 = rectangles.indexes[i];
             if (rectangles.x_nw[index1] > pivot) {
                 //The rectangle is in the right side of the pivot
-                boundary.rightBoundary = i;
+                tmp = i;
                 if(wtList.size() > 0){
                     int wt_pos = wtList.get(0);
                     if (wt_pos < i) {
                         rectangles.indexes[i] = rectangles.indexes[wt_pos];
                         rectangles.indexes[wt_pos] = index1;
-                        boundary.rightBoundary = wt_pos;
+                        tmp = wt_pos;
                         wtList.remove(0);
                     }
                 }
@@ -174,12 +182,13 @@ public class OverlappedRect {
                 wtList.add(i);
             }
         }
+        boundary.rightBoundary = tmp;
         return boundary;
     }
 
-    Integer findOutMedian(Integer start, Integer end){
+    Integer findOutMedian(Integer[] ref, Integer start, Integer end){
         Integer[] data = new Integer[end - start + 1];
-        System.arraycopy( rectangles.x_nw, start, data, 0, data.length );
+        System.arraycopy(ref, start, data, 0, data.length );
         return getMedian(data, 0, data.length - 1);
     }
 
@@ -189,20 +198,22 @@ public class OverlappedRect {
 
         if((rectangles.x_se[index1] < rectangles.x_nw[index2]) //rect1 in the left side of rect2
             || (rectangles.y_se[index1] > rectangles.y_nw[index2]) //rect1 in the top side of rect2
-            || (rectangles.x_se[index2] < rectangles.x_nw[index1])
-            || (rectangles.y_se[index2] > rectangles.y_nw[index1])) {
+            || (rectangles.x_se[index2] < rectangles.x_nw[index1]) //rect2 in the left side of rect1
+            || (rectangles.y_se[index2] > rectangles.y_nw[index1])) { //rect2 in the top side of rect1
             return false;
         }
         else {
+            overlappedA.add(index1);
+            overlappedB.add(index2);
             return true;
         }
     }
 
-    void quicksort(Integer[] ref, Integer start, Integer end){
+    void quickSort(Integer[] ref, Integer start, Integer end){
         if(start < end){
             int p = partition(ref, start, end);
-            quicksort(ref, start, p - 1);
-            quicksort(ref, p + 1, end);
+            quickSort(ref, start, p - 1);
+            quickSort(ref, p + 1, end);
         }
     }
 
@@ -216,7 +227,7 @@ public class OverlappedRect {
         for(int i = start; i <= end; i++) {
             int index1 = rectangles.indexes[i];
 
-            if (rectangles.x_nw[index1] < median) {
+            if (ref[index1] < median) {
                 //The rectangle is in the left side of the pivot
                 p = i;
                 if(wtList.size() > 0){
@@ -236,7 +247,17 @@ public class OverlappedRect {
     }
 
     void printOverlapped() {
-
+        Iterator<Integer> it1 = overlappedA.iterator();
+        Iterator<Integer> it2 = overlappedB.iterator();
+        while(it1.hasNext() && it2.hasNext()) {
+            int i = it1.next();
+            int j = it2.next();
+            System.out.printf("(%d:%d, %d:%d)--(%d:%d, %d:%d)%n",
+                                rectangles.x_nw[i], rectangles.y_nw[i],
+                                rectangles.x_se[i], rectangles.y_se[i],
+                                rectangles.x_nw[j], rectangles.y_nw[j],
+                                rectangles.x_se[j], rectangles.y_se[j]);
+        }
     }
 
     int getMedian(Integer[] data, int start, int end)
