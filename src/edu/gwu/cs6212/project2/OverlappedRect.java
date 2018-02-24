@@ -2,6 +2,9 @@ package edu.gwu.cs6212.project2;
 
 import java.util.*;
 
+import static java.lang.Math.abs;
+import static java.lang.Math.scalb;
+
 
 public class OverlappedRect {
     /**
@@ -26,6 +29,7 @@ public class OverlappedRect {
         Integer[] x_se;
         Integer[] y_se;
         Integer[] indexes;
+        Integer   offset;
 
         public Rectangles(int size) {
             x_nw = new Integer[size];
@@ -45,24 +49,47 @@ public class OverlappedRect {
         this.size = size;
         rectangles = new Rectangles(size);
         Random rand = new Random();
-        int upBound = 10000;
+        int upBound = size * 10;
         for(int i = 0; i < size; i++) {
             rectangles.indexes[i] = i;
             rectangles.x_nw[i] = rand.nextInt(upBound);
             rectangles.y_se[i] = rand.nextInt(upBound);
             rectangles.x_se[i] = rectangles.x_nw[i] + 1
-                                 + (int)(rand.nextGaussian() * 1);
+                                 + (int)(abs(rand.nextGaussian()) * 10);
             rectangles.y_nw[i] = rectangles.y_se[i] + 1
-                                 + (int)(rand.nextGaussian() * 1);
+                                 + (int)(abs(rand.nextGaussian()) * 10);
         }
     }
 
     public static void main(String[] args) {
-        int numOfRect = 10000;
-        OverlappedRect rects = new OverlappedRect();
-        rects.init(numOfRect);
-        rects.getOverlappedRect(0, numOfRect - 1);
-        rects.printOverlapped();
+        int numOfRect = 1000;
+        OverlappedRect rects;
+        List<Integer> overlapped1;
+        List<Integer> overlapped2;
+        while(true) {
+            rects = new OverlappedRect();
+            rects.init(numOfRect);
+
+            rects.getOverlappedRect3(0, numOfRect - 1);
+            rects.printOverlapped();
+            overlapped1 = new ArrayList<>(rects.overlappedA.size());
+            overlapped2 = new ArrayList<>(rects.overlappedB.size());
+            for (Integer item : rects.overlappedA) overlapped1.add(item.intValue());
+            for (Integer item : rects.overlappedB) overlapped2.add(item.intValue());
+            rects.overlappedA.clear();
+            rects.overlappedB.clear(); /**/
+            System.out.println(".......");
+            rects.getOverlappedRect(0, numOfRect - 1);
+            rects.printOverlapped();
+            if(overlapped1.size() != rects.overlappedA.size())
+                break;
+        }
+        while(overlapped1.size() != rects.overlappedA.size()) {
+            rects.overlappedA.clear();
+            rects.overlappedB.clear(); /**/
+            System.out.println(".......");
+            rects.getOverlappedRect(0, numOfRect - 1);
+        }
     }
 
     public void getOverlappedRect(Integer start, Integer end) {
@@ -77,6 +104,9 @@ public class OverlappedRect {
 
         //Divide the rectangles into three groups
         Boundary boundary = divideByPivot(start, end, median);
+
+        System.out.printf("%d, %d, %d, %d %n", start, boundary.leftBoundary,
+                                               boundary.rightBoundary, end);
 
         // 1. rectangles on the left side of the median
         getOverlappedRect(start, boundary.leftBoundary);
@@ -97,7 +127,6 @@ public class OverlappedRect {
         /**
          *
          */
-        System.out.printf("%d, %d, %d, %d %n", start, leftBoundary, rightBoundary, end);
         quickSort(rectangles.x_se, start, leftBoundary);
         //System.out.println(123);
         quickSort(rectangles.x_nw, rightBoundary, end);
@@ -148,7 +177,7 @@ public class OverlappedRect {
 
     void getOverlappedRect3(Integer start, Integer end){
         for(int i = start; i < end; i++) {
-            for (int j = i + 1; j < end; j++) {
+            for (int j = i + 1; j <= end; j++) {
                 isOverlapped(i, j);
             }
         }
@@ -244,31 +273,51 @@ public class OverlappedRect {
     }
 
     void quickSort(Integer[] ref, Integer start, Integer end){
-        if(start < end){
-            int p = partition(ref, start, end);
-            quickSort(ref, start, p - 1);
-            quickSort(ref, p + 1, end);
-        }
-    }
-
-    int partition(Integer[] ref, Integer start, Integer end){
-        //System.out.printf("%d, %d \n", start, end);
-        int p = start;
         int len = end - start + 1;
         Integer[] data = new Integer[len];
         for(int i = 0; i < len; i++) {
             data[i] = ref[rectangles.indexes[start+i]];
         }
-        int median = getMedian(data, 0, data.length - 1);
+        rectangles.offset = start;
+        _quickSort(data, 0, len -1);
+
+        for(int i = 0; i < len - 1; i++) {
+            if( data[i] > data[i+1]) {
+                System.out.println("Error");
+            }
+            //if(data[i] != ref[rectangles.indexes[start+i]]){
+            //    System.out.println("Error2");
+            //}
+        }
+    }
+
+    void _quickSort(Integer[] data, Integer start, Integer end){
+        if(start < end){
+            int p = _partition(data, start, end);
+            _quickSort(data, start, p - 1);
+            _quickSort(data, p + 1, end);
+        }
+    }
+
+    int _partition(Integer[] data, Integer start, Integer end){
+        //System.out.printf("%d, %d \n", start, end);
+        int p = start;
+        int len = end - start + 1;
+        Integer[] median_data = new Integer[len];
+        for(int i = 0; i < len; i++) {
+            median_data[i] = data[start+i];
+        }
+        int median = getMedian(median_data, 0, len-1);
 
         int wt_pos = start;
+        int offset = rectangles.offset;
         for(int i = end; i >= start; i--) {
-            int index1 = rectangles.indexes[i];
-            if (ref[index1] <= median) {
+            //int index1 = rectangles.indexes[i];
+            if (data[i] <= median) {
                 //The rectangle is in the left side of the pivot
                 for (; wt_pos < i; wt_pos++) {
-                    int index2 = rectangles.indexes[wt_pos];
-                    if (ref[index2] > median) {
+                    //int index2 = rectangles.indexes[wt_pos];
+                    if (data[wt_pos] > median) {
                         break;
                     }
                     else {
@@ -281,11 +330,35 @@ public class OverlappedRect {
                     break;
                 }
 
-                rectangles.indexes[i] = rectangles.indexes[wt_pos];
-                rectangles.indexes[wt_pos] = index1;
+                //exchange data[i] and data[wt_pos]
+                int tmp = data[i];
+                data[i] = data[wt_pos];
+                data[wt_pos] = tmp;
+
+                //exchange rectangles.indexes[start+i] and rectangles.indexes[start+wt_pos]
+                tmp = rectangles.indexes[offset+i];
+                rectangles.indexes[offset+i] = rectangles.indexes[offset+wt_pos];
+                rectangles.indexes[offset+wt_pos] = tmp;
                 wt_pos++;
             }
         }
+
+        if(data[p] != median) {
+            for(int i = start; i < p; i++){
+                if (data[i] == median) {
+                    //exchange data[i] and data[wt_pos]
+                    int tmp = data[i];
+                    data[i] = data[p];
+                    data[p] = tmp;
+
+                    //exchange rectangles.indexes[start+i] and rectangles.indexes[start+wt_pos]
+                    tmp = rectangles.indexes[offset+i];
+                    rectangles.indexes[offset+i] = rectangles.indexes[offset+p];
+                    rectangles.indexes[offset+p] = tmp;
+                }
+            }
+        }
+
         return p;
     }
 
@@ -309,7 +382,7 @@ public class OverlappedRect {
         // 小于等于5个元素 直接排序输出结果
         if(end - start + 1 <= 5) {
             Arrays.sort(data, start, end + 1); //sort
-            return data[start + k];
+            return data[k];
         }
 
         //  1 首先把数组按5个数为一组进行分组，最后不足5个的忽略。
