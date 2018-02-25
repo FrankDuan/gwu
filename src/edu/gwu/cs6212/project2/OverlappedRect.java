@@ -62,33 +62,20 @@ public class OverlappedRect {
     }
 
     public static void main(String[] args) {
-        int numOfRect = 1000;
-        OverlappedRect rects;
-        List<Integer> overlapped1;
-        List<Integer> overlapped2;
-        while(true) {
-            rects = new OverlappedRect();
-            rects.init(numOfRect);
+        for(int power = 10; power <= 23; power++) {
+            long sum = 0;
+            for(int i = 0; i < 10; i++) {
 
-            rects.getOverlappedRect3(0, numOfRect - 1);
-            rects.printOverlapped();
-            overlapped1 = new ArrayList<>(rects.overlappedA.size());
-            overlapped2 = new ArrayList<>(rects.overlappedB.size());
-            for (Integer item : rects.overlappedA) overlapped1.add(item.intValue());
-            for (Integer item : rects.overlappedB) overlapped2.add(item.intValue());
-            rects.overlappedA.clear();
-            rects.overlappedB.clear(); /**/
-            System.out.println(".......");
-            rects.getOverlappedRect(0, numOfRect - 1);
-            rects.printOverlapped();
-            if(overlapped1.size() != rects.overlappedA.size())
-                break;
-        }
-        while(overlapped1.size() != rects.overlappedA.size()) {
-            rects.overlappedA.clear();
-            rects.overlappedB.clear(); /**/
-            System.out.println(".......");
-            rects.getOverlappedRect(0, numOfRect - 1);
+                int numOfRect = (int) Math.pow(2, power);
+                OverlappedRect rects = new OverlappedRect();
+                rects.init(numOfRect);
+                long time = System.nanoTime();
+                rects.getOverlappedRect(0, numOfRect - 1);
+                time = System.nanoTime() - time;
+                //rects.printOverlapped();
+                sum += time;
+            }
+            System.out.printf("Power: %d, time: %12d%n", power, sum / 10);
         }
     }
 
@@ -105,8 +92,8 @@ public class OverlappedRect {
         //Divide the rectangles into three groups
         Boundary boundary = divideByPivot(start, end, median);
 
-        System.out.printf("%d, %d, %d, %d %n", start, boundary.leftBoundary,
-                                               boundary.rightBoundary, end);
+        //System.out.printf("%d, %d, %d, %d %n", start, boundary.leftBoundary,
+        //                                       boundary.rightBoundary, end);
 
         // 1. rectangles on the left side of the median
         getOverlappedRect(start, boundary.leftBoundary);
@@ -251,7 +238,6 @@ public class OverlappedRect {
         for(int i = 0; i < len; i++) {
             data[i] = ref[rectangles.indexes[start+i]];
         }
-        //System.arraycopy(ref, start, data, 0, data.length );
         return getMedian(data, 0, data.length - 1);
     }
 
@@ -280,15 +266,6 @@ public class OverlappedRect {
         }
         rectangles.offset = start;
         _quickSort(data, 0, len -1);
-
-        for(int i = 0; i < len - 1; i++) {
-            if( data[i] > data[i+1]) {
-                System.out.println("Error");
-            }
-            //if(data[i] != ref[rectangles.indexes[start+i]]){
-            //    System.out.println("Error2");
-            //}
-        }
     }
 
     void _quickSort(Integer[] data, Integer start, Integer end){
@@ -379,15 +356,11 @@ public class OverlappedRect {
     int getMedian(Integer[] data, int start, int end)
     {
         int k = (start + end) / 2;
-        // 小于等于5个元素 直接排序输出结果
         if(end - start + 1 <= 5) {
             Arrays.sort(data, start, end + 1); //sort
             return data[k];
         }
 
-        //  1 首先把数组按5个数为一组进行分组，最后不足5个的忽略。
-        //    对每组数进行排序（如插入排序）求取其中位数。
-        //  2 把上一步的所有中位数移到数组的前面
         int t = start;
         int cnt = (end - start + 1) / 5;
         for(int i = 0;i < cnt; i++) {
@@ -399,8 +372,6 @@ public class OverlappedRect {
         }
         t--;
 
-        //  3 对这些中位数递归调用BFPRT算法求得他们的中位数
-        int pos = (start + t) / 2; // l-t的中位数的下标， 中位数是第 pos - l + 1数
-        return getMedian(data,start,t); // 递归查找中位数的中位数,确保中位数在pos这个位置
+        return getMedian(data,start,t);
     }
 }
