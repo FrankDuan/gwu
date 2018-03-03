@@ -17,7 +17,14 @@ public interface Cache {
      *
      */
 
-    // use hashtable + linked list to make sure the cache works efficiently
+    /* use hashtable + linked list to make sure the cache works efficiently
+       Always tracking the last recent used data in the cache
+       Set: hit, write into memory
+            miss, move the cache to ensure the FIFO rule
+       Get: hit, return and move the data
+            miss, get from memory and write to cache
+
+    */
 
     void setValue(short address, short value);
 
