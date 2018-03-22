@@ -32,6 +32,32 @@ Output :1 2 4 5 6
 '''
 
 
+def max_depth(node):
+    if node is None:
+        return 0
+    l = max_depth(node.left)
+    r = max_depth(node.right)
+
+    if l >= r:
+        return l + 1
+    else:
+        return r + 1
+
+
+def traversal(node_list, out_list):
+    if len(node_list) == 0:
+        return
+
+    list_of_next_level = []
+    for node in node_list:
+        out_list.append(node)
+        if node.right is not None:
+            list_of_next_level.append(node.right)
+        if node.left is not None:
+            list_of_next_level.append(node.left)
+
+    traversal(list_of_next_level, out_list)
+
 class Node:
 
     def __init__(self, value, left=None, right=None):
@@ -76,6 +102,7 @@ class Node:
             self.right.get_successor(value)
 
 
+
 if __name__ == '__main__':
     root = Node(5, Node(2), Node(6))
     left = root.left
@@ -101,4 +128,11 @@ if __name__ == '__main__':
     root.left_view(view_elements)
     print(view_elements)
     print(root.is_bst())
+
+    print('Depth: {}'.format(max_depth(root)))
+
+    result = []
+    traversal([root], result)
+    while len(result) > 0:
+        print(result.pop().value)
 

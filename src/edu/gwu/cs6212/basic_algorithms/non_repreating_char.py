@@ -18,7 +18,6 @@ def find_unique(a):
     length = len(a)
 
     for i in range(length):
-        unique = True
         if a[i] in fast_set:
             continue
         for j in range(length):
@@ -26,12 +25,11 @@ def find_unique(a):
                 continue
             if a[i] == a[j]:
                 fast_set.add(a[i])
-                unique = False
                 break
-        if unique:
+        else:
             return a[i]
 
 
 if __name__ == '__main__':
-    a = 'aGreekfGreeks'
+    a = 'GreekfGreeks'
     print('{} -> {}'.format(a, find_unique(a)))
