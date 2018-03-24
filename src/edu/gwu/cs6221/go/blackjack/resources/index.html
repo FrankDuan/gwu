@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title></title>
+    <link rel="stylesheet" type="text/css" href="/css/joint.css" />
+    <link rel="stylesheet" type="text/css" href="/css/style.css" />
+</head>
+
+<body>
+
+<div class="header">
+    <div id="menu">
+        <div class="home-menu pure-menu pure-menu-open pure-menu-horizontal pure-menu-fixed">
+            <img src="/images/favicon.png" style="height:40px;vertical-align:middle;">
+            <a class="pure-menu-heading" href="">Blackjack</a>
+        </div>
+    </div>
+</div>
+
+<div id="layout">
+    <div id="main">
+        <h2>Dealer</h2>
+        <div id="container1">
+            &nbsp;
+        </div>
+        <h2>Player</h2>
+        <div id="paper-container" class="paper"/>
+        <div>
+            <label id="gameMessage"></label>
+        </div>
+    </div>
+    <label id="gameMessage"></label>
+    <button class="myButton" id="startNew">Start new game</button>
+    <button class="myButton" id="hit">Hit</button>
+    <button class="myButton" id="stand">Stand</button>
+</div><!-- main -->
+</div><!--layout-->
+
+<div class="footer">
+    <p class="legal-copyright">
+        © GWU. All rights reserved.
+    </p>
+</div>
+
+<script src="/lib/jquery.js"></script>
+<script src="/lib/lodash.js"></script>
+<script src="/lib/backbone.js"></script>
+<script src="/lib/joint.js"></script>
+<script src="/lib/poker.min.js"></script>
+<script src="/js/game.js"></script>
+</body>
+</html>
