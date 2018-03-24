@@ -47,7 +47,7 @@ func NewServer() *negroni.Negroni {
 		}
 	}
 	// The directory to serve.
-
+	log.Println(webRoot + "/resources/")
 	fsHandler := new(FileServerHanlder)
 	fsHandler.fileserver = http.FileServer(http.Dir(webRoot + "/resources/"))
 	fsHandler.jsFile = regexp.MustCompile("\\.js$")
@@ -104,5 +104,5 @@ func main() {
 	myGame = new(Game)
 	myGame.Init()
 	server := NewServer()
-	server.Run()
+	server.Run(":8080")
 }
