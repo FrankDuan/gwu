@@ -6,16 +6,18 @@ import (
 
 	"github.com/codegangsta/negroni"
 	"github.com/gorilla/mux"
-	"github.com/unrolled/render"
+	//"github.com/unrolled/render"
 	"regexp"
 	"log"
+	"encoding/json"
 )
-
 
 type FileServerHanlder struct {
 	fileserver http.Handler
 	jsFile *regexp.Regexp
 }
+
+var myGame *Game
 
 func (handler *FileServerHanlder)ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	ruri := r.RequestURI
@@ -27,10 +29,10 @@ func (handler *FileServerHanlder)ServeHTTP(w http.ResponseWriter, r *http.Reques
 
 // NewServer configures and returns a Server.
 func NewServer() *negroni.Negroni {
-
+	/*
 	formatter := render.New(render.Options{
 		IndentJSON: true,
-	})
+	})*/
 
 	n := negroni.Classic()
 	mx := mux.NewRouter()
@@ -50,47 +52,57 @@ func NewServer() *negroni.Negroni {
 	fsHandler.fileserver = http.FileServer(http.Dir(webRoot + "/resources/"))
 	fsHandler.jsFile = regexp.MustCompile("\\.js$")
 
-	mx.HandleFunc("/game/start", gameStartHandler(formatter)).Methods("GET")
-	mx.HandleFunc("/player/hit", playerHitHandler(formatter)).Methods("GET")
-	mx.HandleFunc("/player/stand", playerStandHandler(formatter)).Methods("GET")
+	mx.HandleFunc("/game/start", gameStartHandler).Methods("GET")
+	mx.HandleFunc("/player/hit", playerHitHandler).Methods("GET")
+	mx.HandleFunc("/player/stand", playerStandHandler).Methods("GET")
 	mx.PathPrefix("/").Handler(fsHandler)
 
 	n.UseHandler(mx)
 	return n
 }
 
-
-func gameStartHandler(formatter *render.Render) http.HandlerFunc {
+func gameStartHandler(w http.ResponseWriter, r *http.Request) {
 	log.Println("Game start!")
-	return func(w http.ResponseWriter, req *http.Request) {
-		formatter.JSON(w, http.StatusOK, struct {
-			ID      string `json:"id"`
-			Content string `json:"content"`
-		}{ID: "8675309", Content: "game start!"})
-	}
+	myGame.Start()
+	responseGameStatus(w, r)
 }
 
-func playerHitHandler(formatter *render.Render) http.HandlerFunc {
+func playerHitHandler(w http.ResponseWriter, r *http.Request) {
 	log.Println("Player hit!")
-	return func(w http.ResponseWriter, req *http.Request) {
-		formatter.JSON(w, http.StatusOK, struct {
-			ID      string `json:"id"`
-			Content string `json:"content"`
-		}{ID: "8675309", Content: "player hit!"})
-	}
+	myGame.PlayerHit()
+	responseGameStatus(w, r)
 }
 
-func playerStandHandler(formatter *render.Render) http.HandlerFunc {
-	log.Println("Player stand!")
-	return func(w http.ResponseWriter, req *http.Request) {
-		formatter.JSON(w, http.StatusOK, struct {
-			ID      string `json:"id"`
-			Content string `json:"content"`
-		}{ID: "8675309", Content: "player stand!"})
-	}
+func playerStandHandler(w http.ResponseWriter, r *http.Request) {
+	log.Println("Player Stand!")
+	myGame.PlayerHold()
+	responseGameStatus(w, r)
 }
+
+func responseGameStatus(w http.ResponseWriter, r *http.Request) {
+	js, err := json.Marshal(myGame.getStatus())
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(js)
+}
+
+
 
 func main() {
+	/*
+	f, err := os.OpenFile("logFile", os.O_RDWR | os.O_CREATE | os.O_APPEND, 0666)
+	if err != nil {
+		return
+	}
+	defer f.Close()
+
+	log.SetOutput(f)
+	*/
+	myGame = new(Game)
+	myGame.Init()
 	server := NewServer()
 	server.Run()
 }
