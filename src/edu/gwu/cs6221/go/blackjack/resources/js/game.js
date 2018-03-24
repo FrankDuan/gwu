@@ -5,7 +5,6 @@ var message;
 var elements = {};
 
 var url = "http://" + location.hostname + ":8080";
-var graph = new joint.dia.Graph;
 var canvas;
 
 
