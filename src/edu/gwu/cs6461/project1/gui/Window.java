@@ -6,36 +6,53 @@
 package edu.gwu.cs6461.project1.gui;
 
 import edu.gwu.cs6461.project1.cpu.RegistersImpl;
-import edu.gwu.cs6461.project1.memory.Memory;
-import edu.gwu.cs6461.project1.memory.MemoryImpl;
+import edu.gwu.cs6461.project1.cache.Cache;
+import edu.gwu.cs6461.project1.cache.DCache;
+import edu.gwu.cs6461.project1.cache.ICache;
 import edu.gwu.cs6461.project1.simulator.Simulator;
 import edu.gwu.cs6461.project1.cpu.Registers;
 import org.netbeans.lib.awtextra.AbsoluteConstraints;
 import org.netbeans.lib.awtextra.AbsoluteLayout;
-
+import edu.gwu.cs6461.project1.cpu.change;
 import java.awt.Color;
 import javax.swing.*;
-
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.NoSuchElementException;
+import javax.swing.JFileChooser;
+import javax.swing.filechooser.FileSystemView;
+import java.util.ArrayList;
 import java.lang.IllegalArgumentException;
 /**
  *
  * @author zhaoq
  */
 public class Window extends javax.swing.JFrame {
+    static Window _instance;
+    static public Window getInstance(){
+        if(_instance == null){
+            _instance = new Window();
+        }
+        return _instance;
+    }
     Registers registers = RegistersImpl.getInstance();// declare a register object
-    Memory memory = MemoryImpl.getInstance();// declare a memory object
     Simulator simulator = new Simulator(); //declare a simulator
+    Cache icache = ICache.getInstance(); // declare cache
+    Cache dcache = DCache.getInstance();
     private boolean permission_Input = false ;//whether the input is permitted
     private javax.swing.JTextField input_TextField;//input to the textfield
     private javax.swing.JTextArea input_TextArea;//input to the textArea
     private boolean choose_InputArea;//whether the input area is a textfield or textArea
     private int GPR_flag;//general purpose register flag
-    private int INR_flag = 1;// index register flag
+    private int INR_flag ;// index register flag
     private Compiler compiler = new Compiler();// declare a compiler
     /**
      * Creates new form Window
      */
-    public Window() {
+    private Window() {
         initComponents();
     }
 
@@ -273,7 +290,12 @@ public class Window extends javax.swing.JFrame {
 
         jButton27.setBackground(java.awt.Color.black);
         jButton27.setForeground(java.awt.Color.white);
-        jButton27.setText("other");
+        jButton27.setText("card_reader");
+        jButton27.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton27ActionPerformed(evt);
+            }
+        });
         jPanel2.add(jButton27, new AbsoluteConstraints(370, 50, 90, 35));
 
         clearButton.setBackground(java.awt.Color.black);
@@ -325,43 +347,43 @@ public class Window extends javax.swing.JFrame {
 
         display_GPR.setBackground(java.awt.Color.black);
         display_GPR.setForeground(java.awt.Color.red);
-        display_GPR.setText("jTextField1");
+        display_GPR.setText("0000000000000000");
 
         display_IR.setBackground(java.awt.Color.black);
         display_IR.setForeground(java.awt.Color.red);
-        display_IR.setText("jTextField1");
+        display_IR.setText("0000000000000000");
 
         display_MFR.setBackground(java.awt.Color.black);
         display_MFR.setForeground(java.awt.Color.red);
-        display_MFR.setText("jTextField1");
+        display_MFR.setText("0000");
 
         display_CC.setBackground(java.awt.Color.black);
         display_CC.setForeground(java.awt.Color.red);
-        display_CC.setText("jTextField1");
+        display_CC.setText("0000");
 
         display_PC.setBackground(java.awt.Color.black);
         display_PC.setForeground(java.awt.Color.red);
-        display_PC.setText("jTextField1");
+        display_PC.setText("0");
 
         memory_Address.setBackground(java.awt.Color.black);
         memory_Address.setForeground(java.awt.Color.red);
-        memory_Address.setText("jTextField1");
+        memory_Address.setText("0");
 
         jTextField7.setBackground(java.awt.Color.black);
         jTextField7.setForeground(java.awt.Color.red);
-        jTextField7.setText("jTextField1");
+        jTextField7.setText("0");
 
         display_MBR.setBackground(java.awt.Color.black);
         display_MBR.setForeground(java.awt.Color.red);
-        display_MBR.setText("jTextField1");
+        display_MBR.setText("0000000000000000");
 
         display_MAR.setBackground(java.awt.Color.black);
         display_MAR.setForeground(java.awt.Color.red);
-        display_MAR.setText("jTextField1");
+        display_MAR.setText("0000000000000000");
 
         display_INR.setBackground(java.awt.Color.black);
         display_INR.setForeground(java.awt.Color.red);
-        display_INR.setText("jTextField1");
+        display_INR.setText("0000000000000000");
 
         PCAction.setBackground(java.awt.Color.yellow);
         PCAction.setFont(new java.awt.Font("Tahoma", 1, 13)); // NOI18N
@@ -486,21 +508,31 @@ public class Window extends javax.swing.JFrame {
         });
 
         jButton23.setBackground(java.awt.Color.yellow);
-        jButton23.setText("Other");
+        jButton23.setText("FR0");
+        jButton23.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton23ActionPerformed(evt);
+            }
+        });
 
         jTextField12.setBackground(java.awt.Color.black);
         jTextField12.setForeground(java.awt.Color.red);
-        jTextField12.setText("jTextField1");
+        jTextField12.setText("0");
 
         jTextField13.setBackground(java.awt.Color.black);
         jTextField13.setForeground(java.awt.Color.red);
-        jTextField13.setText("jTextField1");
+        jTextField13.setText("0");
 
         jButton24.setBackground(java.awt.Color.yellow);
-        jButton24.setText("Other");
+        jButton24.setText("other");
 
         jButton25.setBackground(java.awt.Color.yellow);
-        jButton25.setText("Other");
+        jButton25.setText("FR1");
+        jButton25.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton25ActionPerformed(evt);
+            }
+        });
 
         displayButtom.setText("Display");
         displayButtom.addActionListener(new java.awt.event.ActionListener() {
@@ -1228,7 +1260,30 @@ public class Window extends javax.swing.JFrame {
 
         }
     }//GEN-LAST:event_MARActionActionPerformed
-
+    private void jButton23ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton23ActionPerformed
+        // TODO add your handling code here:
+        change float_short = new change();
+        buttonAction(jButton23, jTextField7);
+        if(!permission_Input){
+            //transfer the data in the textfield to FR0 register
+            String input = jTextField7.getText();
+            float input_float = (float) Double.parseDouble(input);
+            short result = float_short.floatToShort(input_float);
+            registers.setFR(0,result);
+        }
+    }//GEN-LAST:event_jButton23ActionPerformed
+    private void jButton25ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton23ActionPerformed
+        // TODO add your handling code here:
+        change float_short = new change();
+        buttonAction(jButton25, jTextField13);
+        if(!permission_Input){
+            //transfer the data in the textfield to FR1 register
+            String input = jTextField13.getText();
+            float input_float = (float) Double.parseDouble(input);
+            short result = float_short.floatToShort(input_float);
+            registers.setFR(1,result);
+        }
+    }//GEN-LAST:event_jButton25ActionPerformed
     private void MBRActionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_MBRActionActionPerformed
         // TODO add your handling code here:
         buttonAction(MBRAction, display_MBR);
@@ -1322,7 +1377,7 @@ public class Window extends javax.swing.JFrame {
             String input = display_INR.getText();
             if(input.length()<17){
                 short INR_Value = changeToDecimal(input);
-                short flag = (short)(INR_flag -1);
+                short flag = (short)(INR_flag );
                 registers.setX(flag,INR_Value);
             }
             else{
@@ -1410,6 +1465,8 @@ public class Window extends javax.swing.JFrame {
             IRAction.setBackground(Color.YELLOW);
             GPRAction.setBackground(Color.YELLOW);
             INRAction.setBackground(Color.YELLOW);
+            jButton23.setBackground(Color.YELLOW);
+            jButton25.setBackground(Color.YELLOW);
         }
 
     }//GEN-LAST:event_InputActionActionPerformed
@@ -1623,6 +1680,7 @@ public class Window extends javax.swing.JFrame {
 
     private void displayButtomActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_displayButtomActionPerformed
         // TODO add your handling code here:
+        change float_short = new change();
         short output_decimal; // correspond to output's decimal representation
         String output_binary; // correspond to output's binary representation
         // display the contents of register PC
@@ -1637,12 +1695,12 @@ public class Window extends javax.swing.JFrame {
         output_binary = changeToBinary16(output_decimal);
         display_MBR.setText(output_binary);
         //display the contents of register CC
-        output_decimal = registers.getCC();
-        output_binary = changeToBinary16(output_decimal).substring(0,4);
+        output_decimal =(short) (registers.getCC(0)*8 + registers.getCC(1)*4 + registers.getCC(2)*2 + registers.getCC(3));
+        output_binary = changeToBinary16(output_decimal).substring(12,16);
         display_CC.setText(output_binary);
         //display the contents of register MFR
         output_decimal = registers.getMFR();
-        output_binary = changeToBinary16(output_decimal).substring(0,4);
+        output_binary = changeToBinary16(output_decimal).substring(12,16);
         display_MFR.setText(output_binary);
         //display the contents of register IR
         output_decimal = registers.getIR();
@@ -1653,9 +1711,17 @@ public class Window extends javax.swing.JFrame {
         output_binary = changeToBinary16(output_decimal);
         display_GPR.setText(output_binary);
         //display the contents of register INR
-        output_decimal = registers.getX((short)(INR_flag-1));
+        output_decimal = registers.getX((short)(INR_flag));
         output_binary = changeToBinary16(output_decimal);
         display_INR.setText(output_binary);
+        output_decimal = registers.getFR(0);
+        float output = float_short.shortToFloat(output_decimal);
+        output_binary = Double.toString((double)output);
+        jTextField7.setText(output_binary);
+        output_decimal = registers.getFR(1);
+        output = float_short.shortToFloat(output_decimal);
+        output_binary = Double.toString((double)output);
+        jTextField13.setText(output_binary);
 
     }//GEN-LAST:event_displayButtomActionPerformed
 
@@ -1670,7 +1736,10 @@ public class Window extends javax.swing.JFrame {
             input_Instruction[i] = ins_decimal; // store the instruction in an short type array
         }
         short address = (short)Integer.parseInt(memoryAddress);
-        memory.setMemory(address,input_Instruction,(short)input_Instruction.length);
+        for(int j=0;j<input_Instruction.length;j++) {
+            icache.setValue( address, input_Instruction[j]);
+            address = (short) (address+1);
+        }
     }//GEN-LAST:event_LoadActionActionPerformed
 
     private void initializeButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_initializeButtonActionPerformed
@@ -1707,10 +1776,60 @@ public class Window extends javax.swing.JFrame {
             input_Data[i] = ins_decimal; // store the data in an short type array
         }
         short address = (short)Integer.parseInt(memoryAddress);
-        memory.setMemory(address,input_Data,(short)input_Data.length);
-
+        for(int j =0;j<input_Data.length;j++){
+            dcache.setValue(address,input_Data[j]);
+            address = (short)(address+1);
+        }
     }//GEN-LAST:event_loadDataButtonActionPerformed
+    // get the contents of the card
+    private void jButton27ActionPerformed(java.awt.event.ActionEvent evt) {
+        JFileChooser jfc = new JFileChooser(FileSystemView.getFileSystemView().getHomeDirectory());
+        String fileName=null;
+        int returnValue = jfc.showOpenDialog(null);
+        // int returnValue = jfc.showSaveDialog(null);
 
+        if (returnValue == JFileChooser.APPROVE_OPTION) {
+            File selectedFile = jfc.getSelectedFile();
+            fileName=selectedFile.getAbsolutePath();
+        }
+        // This will reference one line at a time
+        String line =null;
+        ArrayList<String> lines=new ArrayList<String>();
+        int i=0;
+        try {
+            // FileReader reads text files in the default encoding.
+            FileReader fileReader =
+                    new FileReader(fileName);
+
+            // Always wrap FileReader in BufferedReader.
+            BufferedReader bufferedReader =
+                    new BufferedReader(fileReader);
+            String a = bufferedReader.toString();
+            while((line = bufferedReader.readLine()) != null) {
+                if(line.length()>1){
+                    lines.add(line);
+                }
+            }
+            // Always close files.
+            bufferedReader.close();
+        }
+        catch(FileNotFoundException ex) {
+            System.out.println(
+                    "Unable to open file '" +
+                            fileName + "'");
+        }
+        catch(IOException ex) {
+            System.out.println(
+                    "Error reading file '"
+                            + fileName + "'");
+            // Or we could just do this:
+            // ex.printStackTrace();
+        }
+        String contents = "";
+        for(String string : lines){
+            contents = contents + string+"\n";
+        }
+    }
     private void clearButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_clearButtonActionPerformed
         // TODO add your handling code here:
         display_Input.setText("");
@@ -1756,6 +1875,8 @@ public class Window extends javax.swing.JFrame {
             GPRAction.setBackground(Color.YELLOW);
             INRAction.setBackground(Color.YELLOW);
             memoryAddressButton.setBackground(Color.YELLOW);
+            jButton23.setBackground(Color.YELLOW);
+            jButton25.setBackground(Color.YELLOW);
         }
     }
     // keyboard input implementation
@@ -1775,12 +1896,13 @@ public class Window extends javax.swing.JFrame {
         String output = ""; // the return value
         int result = input; // store the result of the modulus 2
         int remainder; // remainder
-        for(int i = 0; i < 16; i++){
-            remainder = result % 2;
-            output = Integer.toString(remainder)+output;// get the digit
-            result = result/2;
-        }
+            for (int i = 0; i < 16; i++) {
+                result = input >>> i;
+                remainder = result & 0x1; // get the positive digit
+                output = Integer.toString(remainder) + output;// get the digit
+            }
         return output;
+
     }
     // change binary representation to decimal representation
     private short changeToDecimal(String input){
@@ -1800,6 +1922,23 @@ public class Window extends javax.swing.JFrame {
     /**
      * @param args the command line arguments
      */
+    //implement the I/O operationns
+    public String getInput(){
+        String s = display_Input.getText();
+        return s;
+    }
+    public void setInput(String input){
+        display_Input.setText(input);
+    }
+    public void setOutput(String output){
+        display_Output.setText(output);
+    }
+    public String getOutput(){
+        return display_Output.getText();
+    }
+    public void set_Output(String output){
+        display_Output.setText(output);
+    }
     public static void main(String args[]) {
         /* Set the Nimbus look and feel */
         //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">

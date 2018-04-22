@@ -15,7 +15,7 @@ public class RegistersImpl implements Registers{
     it has four 1-bit elements: overflow, underflow, division by zero,
     equal-or-not. They may be referenced as cc(0), cc(1), cc(2), cc(3).
     Or by the names OVERFLOW, UNDERFLOW, DIVZERO, EQUALORNOT */
-    short CC;
+    short[] CC = new short[4];
 
     //16 bits	    Instruction Register: holds the instruction to be executed
     short IR;
@@ -34,10 +34,11 @@ public class RegistersImpl implements Registers{
 
     //4 bits	    Machine Fault Register: contains the ID code if a machine fault
     //     after it occurs
-    short MFR;
-
+    short[] MFR = new short[4];
     static Registers instance = null;
-
+    boolean stop = false;
+    // float point register
+    short[] FR = new short[2];
     private RegistersImpl() {
         initialize();
     }
@@ -64,7 +65,10 @@ public class RegistersImpl implements Registers{
         GPR[index] = value;
         return value;
     }
-
+    public short GPRsubtracter(short index){
+        short medium = (short)(GPR[index] -1);
+        return medium;
+    }
     @Override
     public short getX(short index) {
         return X[index];
@@ -101,21 +105,24 @@ public class RegistersImpl implements Registers{
         PC = value;
         return value;
     }
-
-    @Override
-    public short setCC(short value, short bitsMask) {
-        return 0;
+    public short PCadder(){
+        short valP = (short)(PC +1); // get the value of valP
+        return valP;
     }
-
     @Override
-    public short setCC(short value) {
-        CC = value;
-        return 0;
+    public void setCC(short value, int index) {
+        CC[index] = value;
     }
-
     @Override
-    public short getCC() {
-        return CC;
+    public void setCC(short value){
+        CC[0] = (short)((value>>3)& 0x1);
+        CC[1] = (short)((value>>2)& 0x1);
+        CC[2] = (short)((value>>1)& 0x1);
+        CC[3] = (short)(value & 0x1);
+    }
+    @Override
+    public short getCC(int index) {
+        return CC[index];
     }
 
     @Override
@@ -152,13 +159,27 @@ public class RegistersImpl implements Registers{
     }
 
     @Override
-    public short setMFR(short value, short bitsMask) {
-        MFR = value;
-        return 0;
+    public void setMFR(short value, int index) {
+        MFR[index] = value;
     }
-
+    @Override
+    public void setMFR(short value){
+        MFR[0] = (short)((value>>3)& 0x1);
+        MFR[1] = (short)((value>>2)& 0x1);
+        MFR[2] = (short)((value>>1)& 0x1);
+        MFR[3] = (short)(value & 0x1);
+    }
+    @Override
+    public short getMFR(int index) {
+        return MFR[index];
+    }
     @Override
     public short getMFR() {
-        return MFR;
+        short mfr = (short)(MFR[0] + (MFR[1] << 1) + (MFR[2] << 2) + (MFR[3] << 3));
+        return mfr;
     }
+    public void setStop(boolean stop){ this.stop = stop; }
+    public boolean getStop(){ return stop;}
+    public void setFR(int index,short value) {FR[index] = value; }
+    public short getFR(int index){ return FR[index];};
 }

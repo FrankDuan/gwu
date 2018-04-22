@@ -16,17 +16,6 @@ public interface Cache {
      * Attention: memory should be reorganized as combination of  8-words pages, such that these pages will not overlapping in the cache.
      *
      */
-
-    /* use hashtable + linked list to make sure the cache works efficiently
-       Always tracking the last recent used data in the cache
-       Set: hit, write into memory
-            miss, move the cache to ensure the FIFO rule
-       Get: hit, return and move the data
-            miss, get from memory and write to cache
-
-    */
-
-    void setValue(short address, short value);
-
+    void setValue(short address, short word);
     short getValue(short address);
 }

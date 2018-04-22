@@ -16,20 +16,63 @@ public class ExecuteFactory {
 
     private static final Map<Short, Creator> factoryMap =
             Collections.unmodifiableMap(new HashMap<Short,Creator>() {{
-                put(InstructionType.LDR, new Creator() {
+                put(InstructionType.JZ, new Creator() {
+                            public Execute create() { return new SimpleSubImpl(); }});
+
+                put(InstructionType.JNE, new Creator() {
+                            public Execute create() { return new SimpleSubImpl(); }});
+
+                put(InstructionType.JCC, new Creator() {
+                            public Execute create() { return new SimpleSubImpl(); }});
+
+                put(InstructionType.SOB, new Creator() {
                             public Execute create() { return new SimpleAddImpl(); }});
 
-                put(InstructionType.STR, new Creator() {
+                put(InstructionType.JGE, new Creator() {
                             public Execute create() { return new SimpleAddImpl(); }});
 
-                put(InstructionType.LDA, new Creator() {
-                            public Execute create() { return new SimpleAddImpl(); }});
+                put(InstructionType.AMR, new Creator() {
+                             public Execute create() { return new SimpleAddImpl(); }});
 
-                put(InstructionType.LDX, new Creator() {
-                            public Execute create() { return new SimpleAddImpl(); }});
+                put(InstructionType.SMR, new Creator() {
+                             public Execute create() { return new SimpleSubImpl(); }});
 
-                put(InstructionType.STX, new Creator() {
-                            public Execute create() { return new SimpleAddImpl(); }});
+                put(InstructionType.AIR, new Creator() {
+                             public Execute create() { return new SimpleAddImpl(); }});
+
+                put(InstructionType.SIR, new Creator() {
+                             public Execute create() { return new SimpleSubImpl(); }});
+
+                put(InstructionType.MLT, new Creator() {
+                             public Execute create() { return new SimpleMulImpl(); }});
+
+                put(InstructionType.DVD, new Creator() {
+                             public Execute create() { return new SimpleDvdImpl(); }});
+
+                put(InstructionType.TRR, new Creator() {
+                             public Execute create() { return new SimpleSubImpl(); }});
+
+                put(InstructionType.AND, new Creator() {
+                             public Execute create() { return new SimpleAndImpl(); }});
+
+                put(InstructionType.ORR, new Creator() {
+                             public Execute create() { return new SimpleOrImpl(); }});
+
+                put(InstructionType.NOT, new Creator() {
+                             public Execute create() { return new SimpleNotImpl(); }});
+
+                put(InstructionType.SRC, new Creator() {
+                             public Execute create() { return new SimpleShiftImpl(); }});
+
+                put(InstructionType.RRC, new Creator() {
+                             public Execute create() { return new SimpleRotateImpl(); }});
+
+                put(InstructionType.FADD, new Creator() {
+                             public Execute create() { return new SimpleFloatAddImpl(); }});
+
+                put(InstructionType.FSUB, new Creator() {
+                             public Execute create() { return new SimpleFloatSubImpl(); }});
+
             }});
 
     public static Execute createExecutor(Instruction instruction) {

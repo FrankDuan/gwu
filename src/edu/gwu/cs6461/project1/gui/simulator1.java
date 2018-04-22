@@ -135,7 +135,7 @@ public class simulator1 extends javax.swing.JFrame {
 
     private void open_WindowActionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_open_WindowActionActionPerformed
         setVisible(false);
-        Window simulator=new Window();
+        Window simulator=Window.getInstance();
         simulator.setVisible(true);
         // TODO add your handling code here:
     }//GEN-LAST:event_open_WindowActionActionPerformed

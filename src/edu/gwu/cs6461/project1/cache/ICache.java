@@ -2,108 +2,108 @@ package edu.gwu.cs6461.project1.cache;
 
 import edu.gwu.cs6461.project1.memory.Memory;
 import edu.gwu.cs6461.project1.memory.MemoryImpl;
-
+import edu.gwu.cs6461.project1.cpu.Registers;
+import edu.gwu.cs6461.project1.cpu.RegistersImpl;
 import java.util.HashMap;
 import java.util.Map;
 
 
 public class ICache implements Cache {
-    static ICache _instance = null;
-    static class Node {
-        Node next;
-        Node prev;
-        short address;
-        short value;
-
-        Node(short address, short value) {
-            this.address = address;
-            this.value = value;
-        }
-
-        void update(short address, short value) {
-            this.address = address;
-            this.value = value;
-        }
+    Memory memory;
+    static ICache _instance;
+    Registers registers = RegistersImpl.getInstance();
+    int size;
+    line head;
+    line tail;
+    // initialize the Cache
+    private ICache(){
+        memory = MemoryImpl.getInstance();
+        size = 0;
+        head = null;
+        tail = null;
     }
-    // 16 cache lines * 8 words
-    private final int limit = 144;
-    // record all the time the head and tail of this double linked list to make sure
-    private Node head;
-    private Node tail;
-
-    private Map<Short, Node> map;
-
-    private ICache() {
-        this.map = new HashMap<Short, Node>();
-    }
-
-    static public Cache getInstance() {
-        if (_instance == null) {
+    static public Cache getInstance(){
+        if(_instance == null){
             _instance = new ICache();
         }
         return _instance;
     }
-    @Override
-    public void setValue(short address, short value) {
-        Node node = null;
-        if (map.containsKey(address)) {
-            node = map.get(address);
-            node.value = value;
-            remove(node);
-        } else if (map.size() <= limit) {
-            node = new Node(address, value);
-        } else {
-            node = tail;
-            remove(node);
-            node.update(address, value);
-        }
-        append(node);
-        // set the memory
-        MemoryImpl.getInstance().setMemory(address, value);
+    private class line{
+        short[] page = new short[8];
+        short tag;
+        line previous;
+        line next;
     }
-
-    @Override
-    public short getValue(short address) {
-        Node node = map.get(address);
-        if (node != null) {
-            remove(node);
-            append(node);
-            return node.value;
-        } else {
-            ICache.getInstance().setValue(address,
-                    MemoryImpl.getInstance().getMemory(address));
-            Node secCheck = map.get(address);
-            remove(secCheck);
-            append(secCheck);
-            return secCheck.value;
+    private line getLine(short address){
+        line Page = new line();
+        int remainder = address % 8;
+        short startAddress =(short)(address - remainder);
+        Page.tag = startAddress;
+        for(int i =0;i<8;i++){
+            short address1 =(short)(startAddress + i);
+            Page.page[i] = memory.getMemory(address1);
         }
-
+        return Page;
     }
-
-    private void remove(Node node) {
-        map.remove(node.address);
-        if (node.prev != null) {
-            node.prev.next = node.next;
+    private void setLine(line Page){
+        short startAddress = Page.tag;
+        for(int i = 0; i<8; i++){
+            short address1 = (short)(startAddress + i);
+            memory.setMemory(address1, Page.page[i]);
         }
-        if (node.next != null) {
-            node.next.prev = node.prev;
-        }
-        if (node == tail) {
-            tail = tail.prev;
-        }
-        node.next = node.prev = null;
-        return;
     }
-    private void append(Node node) {
-        map.put(node.address, node);
-        if (head == null) {
-            head = tail = node;
-        } else {
-            node.next = head;
-            head.prev = node;
-            head = node;
+    private void addToCache(line page){
+        if(head == null){
+            head = page;
+            tail = page;
+            size++;
         }
-        return;
+        else{
+            page.next = head;
+            head.previous = page;
+            head = page;
+            size++;
+            if(size>16){
+                tail.previous.next = null;
+                tail = tail.previous;
+                size--;
+            }
+        }
+    }
+    public short getValue(short address){
+        short Tag = (short)(address & 0xFFF8); // get the tag
+        int offset = address & 0x7; // get the offset
+        line current = head;
+        boolean hit = false;
+        while(current!=null){
+            if(current.tag == Tag){
+                hit = true;
+                return current.page[offset];
+            }
+            current = current.next;
+        }
+        if(hit == false){
+            line Page = getLine(address);
+            addToCache(Page);
+        }
+        return getValue(address);
+    }
+    public void setValue(short address, short word){
+        short Tag = (short)(address & 0xFFF8);
+        int offset = address & 0x7;
+        line current = head;
+        boolean hit = false;
+        while(current!=null){
+            if(current.tag == Tag){
+                hit = true;
+                current.page[offset] = word;
+                setLine(current);
+            }
+            current = current.next;
+        }
+        if(hit == false){
+            memory.setMemory(address,word);
+        }
     }
 }
 

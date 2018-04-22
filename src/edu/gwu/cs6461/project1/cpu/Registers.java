@@ -45,12 +45,12 @@ public interface Registers {
     short getPC(); //12bits
 
     short setPC(short value); //12bits
+    short PCadder();
 
-    short setCC(short value, short bitsMask);
+    void setCC(short value,int index);
+    void setCC(short value);
 
-    public short setCC(short value);
-
-    short getCC();
+    short getCC(int index);
 
     short getMAR();
 
@@ -64,7 +64,13 @@ public interface Registers {
 
     short setMSR(short value);
 
-    short setMFR(short value, short bitsMask);
-
+    void setMFR(short value, int index);
+    void setMFR(short value);
+    short getMFR(int index);
     short getMFR();
+    // Operation buffer register
+    void setStop(boolean stop);
+    boolean getStop();
+    void setFR(int index, short value);
+    short getFR(int index);
 }

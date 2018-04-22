@@ -27,7 +27,9 @@ public class MemoryImpl implements Memory {
     @Override
     public void initialize() {
         System.out.println("memory initiated");
-        for (short i = 0; i < 4096; i++) {
+        memory.put((short)0,(short)7);
+        memory.put((short)1,(short)6);
+        for (short i = 2; i < 4096; i++) {
             memory.put(i, (short) 0);
         }
     }
@@ -35,8 +37,6 @@ public class MemoryImpl implements Memory {
     @Override
     public void setMemory(short address, short value) {
         if (address < 4096 && address >= 0) {
-            registers.setMAR(address);
-            registers.setMBR(value);
             memory.put(address, value);
         } else {
             System.out.println("Out of Bound");
@@ -49,8 +49,6 @@ public class MemoryImpl implements Memory {
             for (int i = 0; i < value.length; i++) {
                 memory.put((short) (address + i), value[i]);
             }
-            registers.setMAR((short)(address + value.length - 1));
-            registers.setMBR(value[value.length - 1]);
         } else {
             System.out.println("Out of Bound");
         }
@@ -60,8 +58,6 @@ public class MemoryImpl implements Memory {
     public short getMemory(short address) {
         if (address < 4096 && address >= 0) {
             short value = memory.get(address);
-            registers.setMAR(address);
-            registers.setMBR(value);
             return value;
         } else {
             System.out.println("Out of Bound");
@@ -76,8 +72,6 @@ public class MemoryImpl implements Memory {
             for (short i = 0; i < length; i++) {
                 tmp[i] = memory.get(address + i);
             }
-            registers.setMAR((short)(address + length - 1));
-            registers.setMBR(tmp[length - 1]);
             return tmp;
         } else {
             System.out.println("Out of Bound");

@@ -5,7 +5,7 @@ import edu.gwu.cs6461.project1.cpu.Instruction;
 public interface Execute {
 
     /**
-     * Execute instruction and save result to valE and CC
+     * Execute instruction and save result to valE and set CC
      * @param instruction
      * @return
      */

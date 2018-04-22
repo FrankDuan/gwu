@@ -12,5 +12,5 @@ public interface Fetch {
      * @param pc
      * @return
      */
-    Instruction fetch(short pc);
+    Instruction fetch();
 }

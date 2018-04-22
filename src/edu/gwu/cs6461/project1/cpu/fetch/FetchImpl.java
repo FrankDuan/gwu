@@ -6,9 +6,13 @@ import edu.gwu.cs6461.project1.cpu.Registers;
 import edu.gwu.cs6461.project1.cpu.RegistersImpl;
 import edu.gwu.cs6461.project1.memory.Memory;
 import edu.gwu.cs6461.project1.memory.MemoryImpl;
-
+import edu.gwu.cs6461.project1.cache.Cache;
+import edu.gwu.cs6461.project1.cache.DCache;
+import edu.gwu.cs6461.project1.cache.ICache;
+import edu.gwu.cs6461.project1.memory.MemoryImpl;
+import edu.gwu.cs6461.project1.cpu.CacheHandler;
 public class FetchImpl implements Fetch {
-
+    private Registers registers = RegistersImpl.getInstance();
     static FetchImpl _instance;
 
     private FetchImpl() {
@@ -27,49 +31,140 @@ public class FetchImpl implements Fetch {
     }
 
     @Override
-    public Instruction fetch(short pc) {
+    public Instruction fetch() {
 
         Registers registers= RegistersImpl.getInstance();
+        Cache iCache = ICache.getInstance();
+        CacheHandler cacheHandle = CacheHandler.getInstance();
         Instruction instruction = new Instruction();
-        Memory memory = MemoryImpl.getInstance();
-        short code = memory.getMemory(registers.getPC());
-        instruction.setInstruct_code(code);
-        registers.setIR(code);
+        registers.setMAR(registers.getPC()); // set the MAR with the value of PC
+        cacheHandle.iCacheRead(); // use the handler to copy the value from cache to MBR
+        registers.setIR(registers.getMBR()); // set the IR with the instructions stored in MBR
+        short code = registers.getIR();
+        instruction.setInstruct_code(code);// get the instructions from the IR
         registers.setX((short)0, (short)0);
-        splitInstruction(instruction);//通过这一步，完成指令分段
-
+        splitInstruction(instruction);// split the instructions and get the value required by the next step
+        short valP = (short) (registers.getPC() + 1);
+        instruction.setValP(valP);
         return instruction;
     }
-
     private void splitInstruction(Instruction instruction){
         short sourceInstr=instruction.getInstruct_code();
         short opcode;
-        String maskStr="1111110000000000";
-        short maskShort=(short)(Integer.parseUnsignedInt(maskStr,2));
+        String maskStr;
+        int maskInt;
         opcode=(short)((sourceInstr>>10) & 0x3f);
+        registers.setMFR((short) 0,2);
         switch(opcode){
             case InstructionType.LDR:
             case InstructionType.STR:
             case InstructionType.LDA:
             case InstructionType.LDX:
             case InstructionType.STX:
+            case InstructionType.JZ:
+            case InstructionType.JNE:
+            case InstructionType.JCC:
+            case InstructionType.JMA:
+            case InstructionType.JSR:
+            case InstructionType.SOB:
+            case InstructionType.JGE:
+            case InstructionType.AMR:
+            case InstructionType.SMR://instruction be made up with R,Ix,I,Address
+            case InstructionType.MOV:
+            case InstructionType.FADD:
+            case InstructionType.FSUB:
+            case InstructionType.VADD:
+            case InstructionType.VSUB:
+            case InstructionType.CNVRT:
+            case InstructionType.LDFR:
+            case InstructionType.STFR:
                 maskStr="0000001100000000";
-                maskShort=(short)(Integer.parseUnsignedInt(maskStr,2));
-                instruction.setR((short)((sourceInstr&maskShort)>>8));
+                maskInt=Integer.parseUnsignedInt(maskStr,2);
+                instruction.setR((short)((sourceInstr&maskInt)>>8));
                 maskStr="0000000011000000";
-                maskShort=(short)(Integer.parseUnsignedInt(maskStr,2));
-                instruction.setIx((short)((sourceInstr&maskShort)>>6));
+                maskInt=Integer.parseUnsignedInt(maskStr,2);
+                instruction.setIx((short)((sourceInstr&maskInt)>>6));
                 maskStr="0000000000100000";
-                maskShort=(short)(Integer.parseUnsignedInt(maskStr,2));
-                instruction.setI((short)((sourceInstr&maskShort)>>5));
+                maskInt=Integer.parseUnsignedInt(maskStr,2);
+                instruction.setI((short)((sourceInstr&maskInt)>>5));
                 maskStr="0000000000011111";
-                maskShort=(short)(Integer.parseUnsignedInt(maskStr,2));
-                instruction.setAddress((short)(sourceInstr&maskShort));
+                maskInt=Integer.parseUnsignedInt(maskStr,2);
+                instruction.setAddress((short)(sourceInstr&maskInt));
                 break;
-            //此处为后续指令分段处理的地方，不同指令分段方式不一致所以需要设置的为也不同。
+            case InstructionType.RFS://instruction only need immediate operand
+                maskStr="0000000000011111";
+                maskInt=Integer.parseUnsignedInt(maskStr,2);
+                instruction.setImmed((short)(sourceInstr&maskInt));
+                break;
+            case InstructionType.AIR:
+            case InstructionType.SIR://instruction be made up with R,Ix,I,Immediate
+                maskStr="0000001100000000";
+                maskInt=Integer.parseUnsignedInt(maskStr,2);
+                instruction.setR((short)((sourceInstr&maskInt)>>8));
+                maskStr="0000000011000000";
+                maskInt=Integer.parseUnsignedInt(maskStr,2);
+                instruction.setIx((short)((sourceInstr&maskInt)>>6));
+                maskStr="0000000000100000";
+                maskInt=Integer.parseUnsignedInt(maskStr,2);
+                instruction.setI((short)((sourceInstr&maskInt)>>5));
+                maskStr="0000000000011111";
+                maskInt=Integer.parseUnsignedInt(maskStr,2);
+                instruction.setImmed((short)(sourceInstr&maskInt));
+                break;
+            case InstructionType.MLT:
+            case InstructionType.DVD:
+            case InstructionType.TRR:
+            case InstructionType.AND:
+            case InstructionType.ORR://instruction be made up with Rx,Ry
+                maskStr="0000001100000000";
+                maskInt=Integer.parseUnsignedInt(maskStr,2);
+                instruction.setRx((short)((sourceInstr&maskInt)>>8));
+                maskStr="0000000011000000";
+                maskInt=Integer.parseUnsignedInt(maskStr,2);
+                instruction.setRy((short)((sourceInstr&maskInt)>>6));
+                break;
+            case InstructionType.NOT://instruction only need Rx
+                maskStr="0000001100000000";
+                maskInt=Integer.parseUnsignedInt(maskStr,2);
+                instruction.setRx((short)((sourceInstr&maskInt)>>8));
+                break;
+            case InstructionType.SRC:
+            case InstructionType.RRC://instruction be made up with R,AL,LR,Count
+                maskStr="0000001100000000";
+                maskInt=Integer.parseUnsignedInt(maskStr,2);
+                instruction.setR((short)((sourceInstr&maskInt)>>8));
+                maskStr="0000000010000000";
+                maskInt=Integer.parseUnsignedInt(maskStr,2);
+                instruction.setAL((short)((sourceInstr&maskInt)>>7));
+                maskStr="0000000001000000";
+                maskInt=Integer.parseUnsignedInt(maskStr,2);
+                instruction.setLR((short)((sourceInstr&maskInt)>>6));
+                maskStr="0000000000001111";
+                maskInt=Integer.parseUnsignedInt(maskStr,2);
+                instruction.setCount((short)(sourceInstr&maskInt));
+                break;
+            case InstructionType.IN:
+            case InstructionType.OUT:
+            case InstructionType.CHK://instruction be made up with R,DevID
+                maskStr="0000001100000000";
+                maskInt=Integer.parseUnsignedInt(maskStr,2);
+                instruction.setR((short)((sourceInstr&maskInt)>>8));
+                maskStr="0000000000011111";
+                maskInt=Integer.parseUnsignedInt(maskStr,2);
+                instruction.setDevID((short)(sourceInstr&maskInt));
+                break;
+            case InstructionType.HLT:
+                break;
+            case InstructionType.TRAP:
+                maskStr="0000000000001111";
+                maskInt=Integer.parseUnsignedInt(maskStr,2);
+                instruction.setTrapCode((short)(sourceInstr&maskInt));
+                break;
             default :
-                //指令有问题，需要做异常处理
+                // throw illegal instruction exception
+                break;
         }
+
         //instruction.addValP;
         instruction.setOpcode(opcode);
     }

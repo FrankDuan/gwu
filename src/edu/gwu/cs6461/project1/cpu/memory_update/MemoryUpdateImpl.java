@@ -1,9 +1,6 @@
 package edu.gwu.cs6461.project1.cpu.memory_update;
 
-import edu.gwu.cs6461.project1.cpu.Instruction;
-import edu.gwu.cs6461.project1.cpu.InstructionType;
-import edu.gwu.cs6461.project1.cpu.Registers;
-import edu.gwu.cs6461.project1.cpu.RegistersImpl;
+import edu.gwu.cs6461.project1.cpu.*;
 import edu.gwu.cs6461.project1.memory.Memory;
 import edu.gwu.cs6461.project1.memory.MemoryImpl;
 
@@ -28,43 +25,50 @@ public class MemoryUpdateImpl implements MemoryUpdate{
 
     @Override
     public short updateMemory(Instruction instruction) {
-        short value;
-        short addr = instruction.getValE();
-        short indirect = instruction.getI();
-
-        Memory memory = MemoryImpl.getInstance();
+        CacheHandler memoryHandle = CacheHandler.getInstance();// declare the cacheHandler that has the same funtion with the memory handler
         Registers registers = RegistersImpl.getInstance();
-        if(indirect != 0) {
-            addr = memory.getMemory(addr);
-        }
-
         switch(instruction.getOpcode()) {
             case InstructionType.LDR:
             case InstructionType.LDX:
-                //valM <- M[valE] or
-                //valM <- M[M[valE]]
-                value = memory.getMemory(addr);
-                instruction.setValM(value);
+            case InstructionType.CNVRT:
+                registers.setMAR(instruction.getEA()); // set the value of MAR as EA (effective address)
+                memoryHandle.dCacheRead(); // set the value of MBR with the value corresponding to the location EA in memory
+                short value1 = registers.getMBR();
+                instruction.setValM(value1); // set the value of valM
                 break;
 
             case InstructionType.STR:
-                //M[valE] <- R[r]
-                value = registers.getGPR(instruction.getR());
-                memory.setMemory(addr, value);
+                short value2 = instruction.getValA(); // get the value of valA
+                registers.setMAR(instruction.getEA()); // set MAR with EA
+                registers.setMBR(value2); // set MBR with valA
+                memoryHandle.dCacheWrite();
                 break;
-
-            case InstructionType.LDA:
-                if(indirect != 0){
-                    instruction.setValM(addr);
-                }
-                break;
-
             case InstructionType.STX:
-                //M[valE] <- X[ix]
-                value = registers.getX(instruction.getIx());
-                memory.setMemory(addr, value);
+                short value3 = instruction.getValB(); // get the value of valB
+                registers.setMAR(instruction.getEA()); // set MAR with EA
+                registers.setMBR(value3); // set MBR with valB
+                memoryHandle.dCacheWrite();
                 break;
-
+            case InstructionType.LDFR:
+                registers.setMAR(instruction.getEA()); // set the value of MAR as EA (effective address)
+                memoryHandle.dCacheRead(); // set the value of MBR with the value corresponding to the location EA in memory
+                short value4 = registers.getMBR();
+                instruction.setValM(value4); // set the value of valM
+                registers.setMAR((short)(instruction.getEA()+1)); // set the value of MAR as EA (effective address)
+                memoryHandle.dCacheRead(); // set the value of MBR with the value corresponding to the location EA in memory
+                short value5 = registers.getMBR();
+                instruction.setValM1(value5); // set the value of valM
+                break;
+            case InstructionType.STFR:
+                short value6 = instruction.getValA(); // get the value of valA
+                short value7 = instruction.getValB();
+                registers.setMAR(instruction.getEA()); // set MAR with EA
+                registers.setMBR(value6); // set MBR with valA
+                memoryHandle.dCacheWrite();
+                registers.setMAR((short) (instruction.getEA()+1)); // set MAR with EA
+                registers.setMBR(value7); // set MBR with valA
+                memoryHandle.dCacheWrite();
+                break;
             default:
                 break;
 
