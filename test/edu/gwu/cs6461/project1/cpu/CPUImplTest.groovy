@@ -1,5 +1,8 @@
 package edu.gwu.cs6461.project1.cpu
 
+import edu.gwu.cs6461.project1.cache.Cache
+import edu.gwu.cs6461.project1.cache.ICache
+import edu.gwu.cs6461.project1.gui.Window
 import edu.gwu.cs6461.project1.memory.Memory
 import edu.gwu.cs6461.project1.memory.MemoryImpl
 import edu.gwu.cs6461.project1.simulator.Simulator
@@ -11,19 +14,27 @@ class CPUImplTest extends GroovyTestCase {
 
     void testProgram1(){
         SimpleCompiler compiler = new SimpleCompiler()
-        short[] program1 = new short[5]
-
-        compiler.compileFile("./program1.txt", program1)
+        short[] program1 = new short[500]
+        String input = "1 2 3 4 5 6 7 8 0 1 111 12 13 14 15 16 17 18 19 20 110 " + '\0'
 
         Simulator simulator = new Simulator()
         Memory memory = MemoryImpl.getInstance()
         Registers registers = RegistersImpl.getInstance()
-
+        Window window = Window.getInstance()
+        Cache cache = ICache.getInstance(); // declare cache
+        window.setInput(input)
+        compiler.compileFile("./program1_a.txt", program1)
         simulator.initialize()
-        memory.setMemory((short)0x100, (short[])program1, (short)program1.length)
+
+        short address = (short)0x100;
+        for(int j=0; j<program1.length; j++) {
+            cache.setValue( address, program1[j])
+            address = (short) (address+1)
+        }
         registers.setPC((short)0x100)
         simulator.run()
-
+        String out = window.getOutput()
+        println(out)
     }
 }
 
@@ -68,6 +79,7 @@ public class SimpleCompiler {
         map.put("CNVRT",31);
         map.put("LDFR",40);
         map.put("STFR",41);
+        map.put("MOV",61);
     }
     // compile the instructions
     public String compile(String instruction){
@@ -89,16 +101,20 @@ public class SimpleCompiler {
                 }
             }
             //select the coresponding methods to compile the single-line instruction
-            int opCode = map.get(firstPart[0]);
+            int opCode = -1;
+            if(map.containsKey(firstPart[0])) {
+                opCode = map.get(firstPart[0]);
+            }
             switch(opCode){
-            //the number of various structures of instructions is 10
+                //the number of various structures of instructions is 10
                 case 0:
                     String binaryRe0 = "0000000000000000";
                     binaryRepresentation = binaryRepresentation + binaryRe0 + "\n";
+                    break;
+                case 60:
                 case 27:
                 case 28:
                 case 29:
-                case 30:
                 case 40:
                 case 41:
                 case 31:
@@ -295,6 +311,46 @@ public class SimpleCompiler {
                     binaryRe8 = element81 + element82 + element83 + element84;
                     binaryRepresentation = binaryRepresentation + binaryRe8 + "\n";
                     break;
+                case 61:
+                    String binaryRe9;//store the binary representation of single-line instruction
+                    String element91 = Integer.toBinaryString(opCode);;//binary representation of opCode
+                    String element92 = Integer.toBinaryString(Integer.parseInt(firstPart[1]));// binary representation of r
+                    instruction_components[1] = instruction_components[1].replaceAll("\\s", "");
+                    String element93 = Integer.toBinaryString(Integer.parseInt(instruction_components[1])); // binary represnetation of x
+                    String element94 = "000000"; // use 0 to complement this instruction
+                    while(element91.length()<6){
+                        element91 = "0" + element91;
+                    }
+                    while(element92.length()<2){
+                        element92 = "0" + element92;
+                    }
+                    while(element93.length()<2){
+                        element93 = "0" + element93;
+                    }
+                    binaryRe9 = element91 + element92 + element93 + element94;
+                    binaryRepresentation = binaryRepresentation + binaryRe9 + "\n";
+                    break
+                case 30:
+                    String binaryRe10;
+                    String element101 = Integer.toBinaryString(opCode);
+                    if(Integer.parseInt(firstPart[1]) > 15){
+                        binaryRepresentation = "Illegal TRAP code \n" + instruction_line;
+                        return binaryRepresentation;
+                    }
+                    String element102 = Integer.toBinaryString(Integer.parseInt(firstPart[1]));
+                    while(element101.length() < 6){
+                        element101 = "0" + element101;
+                    }
+                    while(element102.length() < 4){
+                        element102 = "0" + element102;
+                    }
+                    binaryRe10 = element101 + "000000" + element102;
+                    binaryRepresentation = binaryRepresentation + binaryRe10 + "\n";
+                    break;
+                default:
+                    // throw illegal instrction exception
+                    binaryRepresentation = "Illegal Operation Code \n" + instruction_line;
+                    return binaryRepresentation;
 
             }
         }
@@ -312,11 +368,10 @@ public class SimpleCompiler {
         //Read File Line By Line
         int i = 0;
         int max = data.length;
-        while (((strLine = br.readLine()) != null) && (i < max))   {
+        while (((strLine = br.readLine()) != null) && (i < max)) {
             // Print the content on the console
             data[i++] = changeToDecimal(compile(strLine));
         }
-
         //Close the input stream
         br.close();
         return i;

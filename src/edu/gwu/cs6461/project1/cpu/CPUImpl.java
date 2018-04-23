@@ -53,11 +53,12 @@ public class CPUImpl implements CPU {
     @Override
     public void run() {
         registers.setStop(false);
+        int j = 0;
         while(!registers.getStop()){
             registers.setMFR((short) 0,0);
             registers.setMFR((short) 0,3);
             singleStepRun();
-            System.out.println("1");
+            System.out.println(j++);
         }
     }
 
